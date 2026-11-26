@@ -42,6 +42,7 @@ form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);m
       <button class="tab" data-tab="equipment">Equipment</button>
       <button class="tab" data-tab="borrow">Borrow equipment</button>
       <button class="tab" data-tab="return">Return equipment</button>
+      <button class="tab" data-tab="borrowers">Borrowers</button>
       <button class="tab" data-tab="records">Borrowing records</button>
     </div>
     <div>
@@ -69,12 +70,13 @@ form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);m
       <form id="borrowForm">
         <label for="borrowEquipment">Select equipment</label>
         <select id="borrowEquipment" required><option value="">Loading equipment…</option></select>
-        <label for="borrowerId">Borrower ID</label>
-        <input id="borrowerId" type="number" min="1" required placeholder="Enter borrower ID">
+        <label for="borrowerName">Borrower's full name</label>
+        <input id="borrowerName" type="text" maxlength="100" required placeholder="e.g. Ahmed Khan">
+        <div class="hint">No borrower ID is needed. The system creates a unique ID automatically.</div>
         <label for="dueDate">Due date</label>
         <input id="dueDate" type="date" required>
         <button class="primary" type="submit">Confirm borrowing</button>
-        <div class="hint">Choose the equipment by name. Its database ID is handled automatically.</div>
+        <div class="hint">Equipment and borrower IDs are generated/selected behind the scenes.</div>
       </form>
     </div>
   </section>
@@ -94,13 +96,17 @@ form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);m
     </div>
   </section>
 
+  <section id="borrowers" class="section">
+    <div class="panel"><h2>Registered borrowers</h2><div class="table-wrap"><table><thead><tr><th>Borrower name</th><th>Email</th><th>Phone</th><th>Department</th><th>Borrower type</th></tr></thead><tbody id="borrowerRows"></tbody></table></div></div>
+  </section>
+
   <section id="records" class="section">
-    <div class="panel"><h2>Borrowing records</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Borrower ID</th><th>Issue date</th><th>Due date</th><th>Return date</th><th>Status</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>
+    <div class="panel"><h2>Borrowing records</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Borrower name</th><th>Issue date</th><th>Due date</th><th>Return date</th><th>Status</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>
   </section>
 </main>
 <script>
 const API = "https://oracleapex.com/ords/dawood/";
-let equipment = [], categories = [], loans = [];
+let equipment = [], categories = [], loans = [], borrowers = [];
 const $ = id => document.getElementById(id);
 const val = (obj, key) => obj?.[key] ?? obj?.[key.toLowerCase()] ?? "";
 const rows = data => Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
@@ -119,6 +125,10 @@ function categoryName(id){
   const found=categories.find(c=>String(val(c,"CATEGORYID"))===String(id));
   return found ? val(found,"CATEGORYNAME") : "—";
 }
+function borrowerName(id){
+  const found=borrowers.find(b=>String(val(b,"BORROWERID"))===String(id));
+  return found ? val(found,"NAME") : "Unknown borrower";
+}
 function equipmentName(id){
   const found=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(id));
   return found ? val(found,"EQUIPMENTNAME") : "Unknown equipment";
@@ -129,17 +139,24 @@ function statusPill(status){
   return `<span class="pill ${cls}">${esc(status||"—")}</span>`;
 }
 function dateOnly(v){return v?String(v).slice(0,10):"—";}
+function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
 function isOverdue(loan){
   const due=val(loan,"DUEDATE"), returned=val(loan,"RETURNDATE");
-  return !returned && due && new Date(due)<new Date(new Date().toDateString());
+  return !returned && due && String(due).slice(0,10)<localDate();
 }
 function fillSelects(){
-  const available=equipment.filter(e=>String(val(e,"STATUS")).toUpperCase()==="AVAILABLE");
+  const activeEquipmentIds=new Set(loans
+    .filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"))
+    .map(l=>String(val(l,"EQUIPMENTID"))));
+  const available=equipment.filter(e=>
+    String(val(e,"STATUS")).toUpperCase()==="AVAILABLE" &&
+    !activeEquipmentIds.has(String(val(e,"EQUIPMENTID")))
+  );
   $("borrowEquipment").innerHTML='<option value="">Choose equipment</option>'+available.map(e=>`<option value="${esc(val(e,"EQUIPMENTID"))}">${esc(val(e,"EQUIPMENTNAME"))}</option>`).join("");
   const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
   $("returnEquipment").innerHTML='<option value="">Choose borrowed equipment</option>'+active.map(l=>{
     const id=val(l,"EQUIPMENTID");
-    return `<option value="${esc(val(l,"BORROWID"))}">${esc(equipmentName(id))} — Borrower ${esc(val(l,"BORROWERID"))}</option>`;
+    return `<option value="${esc(val(l,"BORROWID"))}">${esc(equipmentName(id))} — ${esc(borrowerName(val(l,"BORROWERID")))}</option>`;
   }).join("");
   if(!available.length) $("borrowEquipment").innerHTML='<option value="">No available equipment</option>';
   if(!active.length) $("returnEquipment").innerHTML='<option value="">No borrowed equipment</option>';
@@ -147,20 +164,25 @@ function fillSelects(){
 function render(){
   const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
   $("totalCount").textContent=equipment.length;
-  $("availableCount").textContent=equipment.filter(e=>String(val(e,"STATUS")).toUpperCase()==="AVAILABLE").length;
+  const activeEquipmentIds=new Set(active.map(l=>String(val(l,"EQUIPMENTID"))));
+  $("availableCount").textContent=equipment.filter(e=>
+    String(val(e,"STATUS")).toUpperCase()==="AVAILABLE" &&
+    !activeEquipmentIds.has(String(val(e,"EQUIPMENTID")))
+  ).length;
   $("borrowedCount").textContent=active.length;
   $("overdueCount").textContent=active.filter(isOverdue).length;
   const equipmentHtml=equipment.map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"SERIALNUMBER")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("");
   $("equipmentRows").innerHTML=equipmentHtml||'<tr><td colspan="6" class="empty">No equipment found. Add equipment records in Oracle first.</td></tr>';
   $("recentEquipment").innerHTML=equipment.slice(0,6).map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No equipment records found.</td></tr>';
-  $("recordRows").innerHTML=loans.map(l=>`<tr><td><b>${esc(equipmentName(val(l,"EQUIPMENTID")))}</b></td><td>${esc(val(l,"BORROWERID"))}</td><td>${esc(dateOnly(val(l,"ISSUEDATE")))}</td><td>${esc(dateOnly(val(l,"DUEDATE")))}</td><td>${esc(dateOnly(val(l,"RETURNDATE")))}</td><td>${statusPill(isOverdue(l)?"Overdue":val(l,"LOANSTATUS"))}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No borrowing records found.</td></tr>';
+  $("borrowerRows").innerHTML=borrowers.map(b=>`<tr><td><b>${esc(val(b,"NAME"))}</b></td><td>${esc(val(b,"EMAIL")||"—")}</td><td>${esc(val(b,"PHONE")||"—")}</td><td>${esc(val(b,"DEPARTMENT")||"—")}</td><td>${esc(val(b,"BORROWERTYPE")||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No borrowers found.</td></tr>';
+  $("recordRows").innerHTML=loans.map(l=>`<tr><td><b>${esc(equipmentName(val(l,"EQUIPMENTID")))}</b></td><td>${esc(borrowerName(val(l,"BORROWERID")))}</td><td>${esc(dateOnly(val(l,"ISSUEDATE")))}</td><td>${esc(dateOnly(val(l,"DUEDATE")))}</td><td>${esc(dateOnly(val(l,"RETURNDATE")))}</td><td>${statusPill(isOverdue(l)?"Overdue":val(l,"LOANSTATUS"))}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No borrowing records found.</td></tr>';
   fillSelects();
 }
 async function loadData(){
   message("Loading data from Oracle…");
   try{
-    const [e,c,l]=await Promise.all([api("equipment/"),api("categories/"),api("borrowing-records/")]);
-    equipment=rows(e);categories=rows(c);loans=rows(l);
+    const [e,c,l,b]=await Promise.all([api("equipment/"),api("categories/"),api("borrowing-records/"),api("borrowers/")]);
+    equipment=rows(e);categories=rows(c);loans=rows(l);borrowers=rows(b);
     render();message(`Connected · ${equipment.length} equipment records loaded`,"ok");
   }catch(err){
     message("Database connection failed: "+err.message,"error");
@@ -174,21 +196,77 @@ document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>
 $("refreshBtn").addEventListener("click",loadData);
 $("borrowForm").addEventListener("submit",async ev=>{
   ev.preventDefault();
-  const equipmentId=$("borrowEquipment").value, borrowerId=$("borrowerId").value, dueDate=$("dueDate").value;
-  if(!equipmentId)return;
+  const form=ev.currentTarget;
+  const submit=form.querySelector('button[type="submit"]');
+  const equipmentId=$("borrowEquipment").value;
+  const borrowerName=$("borrowerName").value.trim();
+  const dueDate=$("dueDate").value;
+  if(!equipmentId || !borrowerName || !dueDate){
+    message("Please choose equipment, enter the borrower's name and select a due date.","error");
+    return;
+  }
+  if(dueDate < localDate()){
+    message("Due date cannot be earlier than today.","error");
+    return;
+  }
   const item=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(equipmentId));
   if(!item){message("Selected equipment was not found. Refresh and try again.","error");return;}
-  if(String(val(item,"STATUS")).toUpperCase()!=="AVAILABLE"){message("This equipment is no longer available.","error");return;}
+  if(String(val(item,"STATUS")).toUpperCase()!=="AVAILABLE"){
+    message("This equipment is no longer available. Refresh the page.","error");return;
+  }
+
+  submit.disabled=true;
   try{
-    message("Saving borrowing record…");
-    const today=new Date().toISOString().slice(0,10);
+    message("Creating borrower and saving borrowing record…");
+
+    // Generate a random ID that does not already exist in the borrower table.
+    const usedIds=new Set(borrowers.map(b=>String(val(b,"BORROWERID"))));
+    let borrowerId;
+    do { borrowerId= Math.floor(100000 + Math.random()*900000); }
+    while(usedIds.has(String(borrowerId)));
+
+    // Create a borrower row first so the Borrowing Records foreign key is valid.
+    const safeName=borrowerName.replace(/[^a-zA-Z0-9]+/g,".").replace(/^\.+|\.+$/g,"").toLowerCase() || "borrower";
+    const borrowerPayload={
+      BORROWERID:borrowerId,
+      NAME:borrowerName,
+      EMAIL:`${safeName}.${borrowerId}@demo.university.edu`,
+      PHONE:"0000000000",
+      BORROWERTYPE:"Student",
+      DEPARTMENT:"General",
+      ROLE:"Student"
+    };
+    await api("borrowers/","POST",borrowerPayload);
+
+    // Create the borrowing row using the newly-created borrower ID.
+    const today=localDate();
     await api("borrowing-records/","POST",{
-      EQUIPMENTID:Number(equipmentId),BORROWERID:Number(borrowerId),
-      ISSUEDATE:today,DUEDATE:dueDate,LOANSTATUS:"Borrowed"
+      EQUIPMENTID:Number(equipmentId),
+      BORROWERID:Number(borrowerId),
+      ISSUEDATE:today,
+      DUEDATE:dueDate,
+      LOANSTATUS:"Borrowed"
     });
-    await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"});
-    $("borrowForm").reset();await loadData();message("Equipment borrowed successfully.","ok");
-  }catch(err){message("Borrow failed: "+err.message,"error");}
+
+    // Mark the equipment unavailable after the loan has been recorded.
+    try{
+      await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"});
+    }catch(statusError){
+      // Keep the saved loan visible and explain that inventory status needs attention.
+      await loadData();
+      message("Borrowing record saved, but equipment status could not be updated: "+statusError.message,"error");
+      return;
+    }
+
+    form.reset();
+    await loadData();
+    message(`${borrowerName} successfully borrowed ${val(item,"EQUIPMENTNAME")}.`,"ok");
+  }catch(err){
+    message("Borrow failed: "+err.message+" — check that ORDS allows POST on borrowers and borrowing-records.","error");
+    console.error("Borrow error:",err);
+  }finally{
+    submit.disabled=false;
+  }
 });
 $("returnForm").addEventListener("submit",async ev=>{
   ev.preventDefault();
@@ -197,17 +275,28 @@ $("returnForm").addEventListener("submit",async ev=>{
   if(!loan){message("Select a borrowing record first.","error");return;}
   try{
     message("Saving return…");
-    const today=new Date().toISOString().slice(0,10);
-    await api("borrowing-records/"+encodeURIComponent(borrowId),"PATCH",{
-      RETURNDATE:today,RETURNCONDITION:$("returnCondition").value,
-      LOANSTATUS:"Returned",REMARKS:$("returnRemarks").value
-    });
-    await api("equipment/"+encodeURIComponent(val(loan,"EQUIPMENTID")),"PATCH",{
+    const today=localDate();
+    const equipmentId=val(loan,"EQUIPMENTID");
+    await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{
       STATUS:"Available",CONDITION:$("returnCondition").value
     });
+    try {
+      await api("borrowing-records/"+encodeURIComponent(borrowId),"PATCH",{
+        RETURNDATE:today,RETURNCONDITION:$("returnCondition").value,
+        LOANSTATUS:"Returned",REMARKS:$("returnRemarks").value
+      });
+    } catch(updateError) {
+      try { await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"}); } catch(rollbackError) {}
+      throw updateError;
+    }
     $("returnForm").reset();await loadData();message("Equipment returned successfully.","ok");
   }catch(err){message("Return failed: "+err.message,"error");}
 });
+// Set a convenient default due date one week from today.
+const defaultDue=new Date();
+defaultDue.setDate(defaultDue.getDate()+7);
+$("dueDate").min=localDate();
+$("dueDate").value=`${defaultDue.getFullYear()}-${String(defaultDue.getMonth()+1).padStart(2,"0")}-${String(defaultDue.getDate()).padStart(2,"0")}`;
 loadData();
 </script>
 </body>

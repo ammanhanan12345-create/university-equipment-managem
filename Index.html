@@ -1,1 +1,102 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>University Equipment Management</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f5f9;color:#202b3c}
+header{background:#172554;color:white;padding:22px}
+header h2{margin:0}
+header p{margin:7px 0 0;color:#cbd5e1}
+nav{background:white;padding:14px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #ddd}
+nav a{color:#1e40af;text-decoration:none;font-weight:bold}
+main{padding:22px;max-width:1100px;margin:auto}
+h1{font-size:25px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
+.card{background:white;padding:20px;border-radius:10px;box-shadow:0 2px 8px #0000000c}
+.card p{color:#64748b;margin-bottom:5px}
+.number{font-size:30px;font-weight:bold;color:#1d4ed8}
+section{background:white;margin-top:22px;padding:20px;border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:550px}
+th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb}
+th{background:#eff6ff}
+.table-wrap{overflow-x:auto}
+.status{background:#dcfce7;color:#166534;padding:5px 9px;border-radius:15px}
+footer{text-align:center;padding:25px;color:#64748b}
+</style>
+</head>
+<body>
+
+<header>
+<h2>University Equipment Management System</h2>
+<p>Equipment Borrowing & Return Management Portal</p>
+</header>
+
+<nav>
+<a href="#dashboard">Dashboard</a>
+<a href="#equipment">Equipment</a>
+<a href="#categories">Categories</a>
+<a href="#borrowers">Borrowers</a>
+<a href="#records">Borrowing Records</a>
+</nav>
+
+<main>
+<h1 id="dashboard">Dashboard</h1>
+<p>Welcome to the University Equipment Management System.</p>
+
+<div class="cards">
+<div class="card"><p>Total Equipment</p><div class="number">120</div></div>
+<div class="card"><p>Available</p><div class="number">85</div></div>
+<div class="card"><p>Borrowed</p><div class="number">25</div></div>
+<div class="card"><p>Overdue</p><div class="number">10</div></div>
+</div>
+
+<section id="equipment">
+<h2>Equipment Inventory</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>ID</th><th>Equipment</th><th>Category</th><th>Condition</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>101</td><td>Laptop Dell</td><td>Computers</td><td>Good</td><td><span class="status">Available</span></td></tr>
+<tr><td>102</td><td>Projector Epson</td><td>Electronics</td><td>Good</td><td><span class="status">Available</span></td></tr>
+<tr><td>103</td><td>Arduino Kit</td><td>Lab Equipment</td><td>Good</td><td><span class="status">Borrowed</span></td></tr>
+<tr><td>104</td><td>Desktop Computer</td><td>Computers</td><td>Good</td><td><span class="status">Available</span></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section id="categories">
+<h2>Equipment Categories</h2>
+<ul>
+<li>Computers</li>
+<li>Electronics</li>
+<li>Lab Equipment</li>
+<li>Accessories</li>
+</ul>
+</section>
+
+<section id="borrowers">
+<h2>Borrowers</h2>
+<p>University students, faculty members and staff.</p>
+</section>
+
+<section id="records">
+<h2>Borrowing Records</h2>
+<div class="table-wrap">
+<table>
+<tr><th>Borrow ID</th><th>Equipment</th><th>Borrower</th><th>Loan Status</th></tr>
+<tr><td>1</td><td>Laptop Dell</td><td>Student</td><td>Active</td></tr>
+<tr><td>2</td><td>Arduino Kit</td><td>Faculty</td><td>Active</td></tr>
+</table>
+</div>
+</section>
+</main>
+
+<footer>University Equipment Management System</footer>
+</body>
+</html>
+

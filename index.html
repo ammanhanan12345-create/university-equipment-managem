@@ -3,28 +3,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>University Equipment Management</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f5f9;color:#202b3c}
+body{margin:0;font-family:Arial;background:#f3f5f9;color:#202b3c}
 header{background:#172554;color:white;padding:22px}
 header h2{margin:0}
-header p{margin:7px 0 0;color:#cbd5e1}
-nav{background:white;padding:14px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid #ddd}
+header p{color:#cbd5e1}
+nav{background:white;padding:15px;display:flex;gap:18px;flex-wrap:wrap}
 nav a{color:#1e40af;text-decoration:none;font-weight:bold}
-main{padding:22px;max-width:1100px;margin:auto}
-h1{font-size:25px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px}
-.card{background:white;padding:20px;border-radius:10px;box-shadow:0 2px 8px #0000000c}
-.card p{color:#64748b;margin-bottom:5px}
+main{padding:20px;max-width:1100px;margin:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:15px}
+.card,section{background:white;padding:20px;border-radius:10px;margin-top:18px}
 .number{font-size:30px;font-weight:bold;color:#1d4ed8}
-section{background:white;margin-top:22px;padding:20px;border-radius:10px}
-table{width:100%;border-collapse:collapse;min-width:550px}
-th,td{text-align:left;padding:13px;border-bottom:1px solid #e5e7eb}
-th{background:#eff6ff}
 .table-wrap{overflow-x:auto}
-.status{background:#dcfce7;color:#166534;padding:5px 9px;border-radius:15px}
+table{width:100%;border-collapse:collapse;min-width:550px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #ddd}
+th{background:#eff6ff}
+input,select,button{padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:6px;font-size:15px}
+input,select{width:100%;max-width:350px}
+button{background:#1d4ed8;color:white;border:0;cursor:pointer}
+button:disabled{opacity:.5}
+.status{padding:5px 9px;border-radius:12px;background:#dcfce7;color:#166534}
+.message{padding:12px;background:#e0f2fe;border-radius:7px;margin:10px 0}
+.error{background:#fee2e2;color:#991b1b}
 footer{text-align:center;padding:25px;color:#64748b}
 </style>
 </head>
@@ -38,65 +41,231 @@ footer{text-align:center;padding:25px;color:#64748b}
 <nav>
 <a href="#dashboard">Dashboard</a>
 <a href="#equipment">Equipment</a>
-<a href="#categories">Categories</a>
-<a href="#borrowers">Borrowers</a>
+<a href="#borrow">Borrow</a>
+<a href="#return">Return</a>
 <a href="#records">Borrowing Records</a>
 </nav>
 
 <main>
 <h1 id="dashboard">Dashboard</h1>
-<p>Welcome to the University Equipment Management System.</p>
+<p>University Equipment Management System</p>
 
 <div class="cards">
-<div class="card"><p>Total Equipment</p><div class="number">120</div></div>
-<div class="card"><p>Available</p><div class="number">85</div></div>
-<div class="card"><p>Borrowed</p><div class="number">25</div></div>
-<div class="card"><p>Overdue</p><div class="number">10</div></div>
+<div class="card">Total Equipment<div class="number" id="total">0</div></div>
+<div class="card">Available<div class="number" id="available">0</div></div>
+<div class="card">Borrowed<div class="number" id="borrowed">0</div></div>
+<div class="card">Overdue<div class="number" id="overdue">0</div></div>
 </div>
+
+<div id="message"></div>
 
 <section id="equipment">
 <h2>Equipment Inventory</h2>
+<button onclick="loadData()">Refresh Equipment</button>
 <div class="table-wrap">
 <table>
-<thead><tr><th>ID</th><th>Equipment</th><th>Category</th><th>Condition</th><th>Status</th></tr></thead>
-<tbody>
-<tr><td>101</td><td>Laptop Dell</td><td>Computers</td><td>Good</td><td><span class="status">Available</span></td></tr>
-<tr><td>102</td><td>Projector Epson</td><td>Electronics</td><td>Good</td><td><span class="status">Available</span></td></tr>
-<tr><td>103</td><td>Arduino Kit</td><td>Lab Equipment</td><td>Good</td><td><span class="status">Borrowed</span></td></tr>
-<tr><td>104</td><td>Desktop Computer</td><td>Computers</td><td>Good</td><td><span class="status">Available</span></td></tr>
+<thead>
+<tr><th>ID</th><th>Equipment</th><th>Category ID</th><th>Condition</th><th>Status</th></tr>
+</thead>
+<tbody id="equipmentRows">
+<tr><td colspan="5">Loading...</td></tr>
 </tbody>
 </table>
 </div>
 </section>
 
-<section id="categories">
-<h2>Equipment Categories</h2>
-<ul>
-<li>Computers</li>
-<li>Electronics</li>
-<li>Lab Equipment</li>
-<li>Accessories</li>
-</ul>
+<section id="borrow">
+<h2>Borrow Equipment</h2>
+<p>Enter the equipment and registered borrower IDs.</p>
+<form id="borrowForm">
+<label>Equipment ID</label><br>
+<input type="number" id="equipmentId" required placeholder="Equipment ID"><br>
+<label>Borrower ID</label><br>
+<input type="number" id="borrowerId" required placeholder="Borrower ID"><br>
+<label>Due Date</label><br>
+<input type="date" id="dueDate" required><br>
+<button type="submit">Borrow Equipment</button>
+</form>
 </section>
 
-<section id="borrowers">
-<h2>Borrowers</h2>
-<p>University students, faculty members and staff.</p>
+<section id="return">
+<h2>Return Equipment</h2>
+<form id="returnForm">
+<label>Borrowing Record ID</label><br>
+<input type="number" id="borrowId" required placeholder="Borrow ID"><br>
+<label>Return Condition</label><br>
+<select id="returnCondition">
+<option value="Good">Good</option>
+<option value="Damaged">Damaged</option>
+<option value="Fair">Fair</option>
+</select><br>
+<label>Remarks</label><br>
+<input id="remarks" placeholder="Optional remarks"><br>
+<button type="submit">Return Equipment</button>
+</form>
 </section>
 
 <section id="records">
-<h2>Borrowing Records</h2>
+<h2>Borrowing History</h2>
 <div class="table-wrap">
 <table>
-<tr><th>Borrow ID</th><th>Equipment</th><th>Borrower</th><th>Loan Status</th></tr>
-<tr><td>1</td><td>Laptop Dell</td><td>Student</td><td>Active</td></tr>
-<tr><td>2</td><td>Arduino Kit</td><td>Faculty</td><td>Active</td></tr>
+<thead>
+<tr><th>Borrow ID</th><th>Equipment ID</th><th>Borrower ID</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
+</thead>
+<tbody id="recordRows">
+<tr><td colspan="6">Loading...</td></tr>
+</tbody>
 </table>
 </div>
 </section>
 </main>
 
 <footer>University Equipment Management System</footer>
+
+<script>
+const API = "https://oracleapex.com/ords/dawood/";
+
+function showMessage(text,error=false){
+ const box=document.getElementById("message");
+ box.className="message"+(error?" error":"");
+ box.textContent=text;
+}
+
+async function api(path,method="GET",body=null){
+ const options={
+  method,
+  headers:{"Accept":"application/json"}
+ };
+ if(body){
+  options.headers["Content-Type"]="application/json";
+  options.body=JSON.stringify(body);
+ }
+ const response=await fetch(API+path,options);
+ const text=await response.text();
+ if(!response.ok) throw new Error("API error "+response.status+": "+text);
+ return text?JSON.parse(text):{};
+}
+
+function rows(data){
+ return data.items || [];
+}
+
+function value(row,key){
+ const found=Object.keys(row).find(k=>k.toLowerCase()===key.toLowerCase());
+ return found?row[found]:"";
+}
+
+async function loadData(){
+ try{
+  const [equipmentData,loanData]=await Promise.all([
+   api("equipment/"),
+   api("borrowing-records/")
+  ]);
+
+  const equipment=rows(equipmentData);
+  const loans=rows(loanData);
+  const today=new Date().toISOString().slice(0,10);
+
+  const available=equipment.filter(e=>String(value(e,"STATUS")).toUpperCase()==="AVAILABLE");
+  const borrowed=equipment.filter(e=>String(value(e,"STATUS")).toUpperCase()==="BORROWED");
+  const overdue=loans.filter(l=>
+   !value(l,"RETURNDATE") &&
+   value(l,"DUEDATE") &&
+   String(value(l,"DUEDATE")).slice(0,10)<today
+  );
+
+  document.getElementById("total").textContent=equipment.length;
+  document.getElementById("available").textContent=available.length;
+  document.getElementById("borrowed").textContent=borrowed.length;
+  document.getElementById("overdue").textContent=overdue.length;
+
+  document.getElementById("equipmentRows").innerHTML=equipment.map(e=>`
+   <tr>
+    <td>${value(e,"EQUIPMENTID")}</td>
+    <td>${value(e,"EQUIPMENTNAME")}</td>
+    <td>${value(e,"CATEGORYID")}</td>
+    <td>${value(e,"CONDITION")}</td>
+    <td>${value(e,"STATUS")}</td>
+   </tr>
+  `).join("")||'<tr><td colspan="5">No equipment found.</td></tr>';
+
+  document.getElementById("recordRows").innerHTML=loans.map(l=>`
+   <tr>
+    <td>${value(l,"BORROWID")}</td>
+    <td>${value(l,"EQUIPMENTID")}</td>
+    <td>${value(l,"BORROWERID")}</td>
+    <td>${value(l,"ISSUEDATE")}</td>
+    <td>${value(l,"DUEDATE")}</td>
+    <td>${value(l,"LOANSTATUS")}</td>
+   </tr>
+  `).join("")||'<tr><td colspan="6">No borrowing records found.</td></tr>';
+
+ }catch(error){
+  showMessage("Could not load Oracle data. "+error.message,true);
+ }
+}
+
+document.getElementById("borrowForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+  const equipmentId=Number(document.getElementById("equipmentId").value);
+  const borrowerId=Number(document.getElementById("borrowerId").value);
+  const dueDate=document.getElementById("dueDate").value;
+  const issueDate=new Date().toISOString().slice(0,10);
+
+  if(dueDate<issueDate) throw new Error("Due date cannot be before today.");
+
+  const equipment=await api("equipment/"+equipmentId);
+  if(String(value(equipment,"STATUS")).toUpperCase()!=="AVAILABLE")
+   throw new Error("This equipment is not available.");
+
+  if(String(value(equipment,"CONDITION")).toUpperCase()!=="GOOD")
+   throw new Error("Only equipment in good condition can be borrowed.");
+
+  await api("borrowing-records/","POST",{
+   EQUIPMENTID:equipmentId,
+   BORROWERID:borrowerId,
+   ISSUEDATE:issueDate,
+   DUEDATE:dueDate,
+   LOANSTATUS:"Borrowed"
+  });
+
+  showMessage("Borrowing record submitted. Refreshing data...");
+  e.target.reset();
+  await loadData();
+ }catch(error){
+  showMessage(error.message,true);
+ }
+});
+
+document.getElementById("returnForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+  const borrowId=Number(document.getElementById("borrowId").value);
+  const condition=document.getElementById("returnCondition").value;
+  const remarks=document.getElementById("remarks").value;
+
+  const loan=await api("borrowing-records/"+borrowId);
+
+  if(value(loan,"RETURNDATE"))
+   throw new Error("This equipment has already been returned.");
+
+  await api("borrowing-records/"+borrowId,"PATCH",{
+   RETURNDATE:new Date().toISOString().slice(0,10),
+   RETURNCONDITION:condition,
+   LOANSTATUS:"Returned",
+   REMARKS:remarks
+  });
+
+  showMessage("Return recorded. Refreshing data...");
+  e.target.reset();
+  await loadData();
+ }catch(error){
+  showMessage(error.message,true);
+ }
+});
+
+loadData();
+</script>
 </body>
 </html>
-

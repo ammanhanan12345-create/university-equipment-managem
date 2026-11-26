@@ -1,5 +1,35 @@
 # University Equipment Borrowing & Return Management System
 
+## No-Render website: secure borrowing and returns
+
+The public GitHub Pages portal now provides **seven sections**: Dashboard, Equipment Inventory, Borrow Equipment, Return Equipment, Borrowing Records, Borrowers, and Manage. The inventory reads public equipment data using ORDS. Forms that change Oracle data open authenticated pages from the **existing Oracle APEX application ID 94698** in a new tab, rather than trying to call unprotected ORDS write endpoints from public JavaScript:
+
+| Action | APEX page | Deep link |
+| --- | --- | --- |
+| Borrow equipment | 9 | `https://oracleapex.com/ords/f?p=94698:9:0` |
+| Return equipment | 10 | `https://oracleapex.com/ords/f?p=94698:10:0` |
+| Borrowing records | 8 | `https://oracleapex.com/ords/f?p=94698:8:0` |
+| Overdue report | 11 | `https://oracleapex.com/ords/f?p=94698:11:0` |
+| Borrowers / new borrower | 6 / 7 | `https://oracleapex.com/ords/f?p=94698:6:0` / `https://oracleapex.com/ords/f?p=94698:7:0` |
+| Equipment / categories | 4 / 2 | `https://oracleapex.com/ords/f?p=94698:4:0` / `https://oracleapex.com/ords/f?p=94698:2:0` |
+| Oracle Dashboard | 12 | `https://oracleapex.com/ords/f?p=94698:12:0` |
+
+These are Oracle's **legacy f?p links**, derived from the app ID/page numbers used in the project. Verify they redirect to the intended authenticated page in the live workspace; if this application requires a different friendly URL, replace these links with each page's exact Run Application URL. APEX login can be required. GitHub Pages cannot itself perform protected database writes with a hidden secret. The APEX pages and Oracle trigger/constraints are responsible for actual issue/return transactions.
+
+### Acceptance checks
+
+- On GitHub Pages, click Refresh Oracle Data. The status should say "Oracle inventory connected"; if it shows CORS failure, configure ORDS allowed origins for `https://ammanhanan12345-create.github.io`.
+- Click Borrow equipment > Open Borrow Equipment. Confirm APEX page 9 opens; complete one **test loan** with a registered borrower.
+- In APEX, verify the test loan exists and its equipment status is Borrowed.
+- Back on GitHub Pages, refresh to see the borrowed count change.
+- Click Return Equipment > Open Return Equipment. Confirm APEX page 10 opens; return the same test loan.
+- Refresh again and verify the status is Available or Maintenance per the returned condition and Oracle trigger.
+
+We cannot execute these Oracle transactions through the GitHub connector; **live acceptance has not been independently performed**.
+
+---
+
+
 ## GitHub Pages (no Render required for live inventory)
 
 The deployed `index.html` is a **read-only Oracle inventory dashboard**. It loads equipment and, when available, category names from `https://oracleapex.com/ords/dawood/` directly in the browser. It includes equipment search and status/category filters. It does **not** load borrowers or loan records, nor does it send any POST/PUT/PATCH/DELETE requests. No API secrets belong in the HTML.

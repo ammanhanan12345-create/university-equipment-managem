@@ -3,51 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>University Equipment Management</title>
+<meta name="description" content="University equipment inventory connected to the Oracle ORDS REST API.">
+<title>University Equipment Management | Oracle Live Inventory</title>
 <style>
-:root{--navy:#14213d;--blue:#315efb;--bg:#f4f6fb;--text:#202a3b;--muted:#718096;--line:#e7ebf2;--green:#16865b;--red:#d84b4b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--text)}
-header{background:linear-gradient(120deg,#14213d,#263f70);color:#fff;padding:25px max(22px,calc((100% - 1180px)/2))}
-header h1{font-size:25px;margin:0 0 6px}header p{margin:0;color:#d7e0f2;font-size:14px}
-main{max-width:1180px;margin:25px auto;padding:0 18px}
-.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab,button{border:0;border-radius:9px;padding:11px 16px;font-weight:600;cursor:pointer}
+:root{--navy:#14213d;--blue:#315efb;--bg:#f4f6fb;--text:#202a3b;--muted:#64748b;--line:#e7ebf2;--green:#16865b;--red:#c43d3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(120deg,#14213d,#263f70);color:#fff;padding:28px max(22px,calc((100% - 1180px)/2))}
+header h1{font-size:25px;margin:0 0 7px}
+header p{margin:0;color:#d7e0f2;font-size:14px}
+main{max-width:1180px;margin:26px auto;padding:0 18px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:19px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}
+.tab,button{border:0;border-radius:9px;padding:11px 16px;font-weight:600;cursor:pointer;font:600 14px Inter,Arial,sans-serif}
 .tab{background:#fff;color:#526078}.tab.active{background:var(--blue);color:white}
-button.primary{background:var(--blue);color:white}button.secondary{background:#edf1ff;color:#315efb}button:disabled{opacity:.55;cursor:not-allowed}
-.status{font-size:13px;color:var(--muted)}.status.error{color:var(--red)}.status.ok{color:var(--green)}
+button.secondary{background:#edf1ff;color:#315efb}
+button:disabled{opacity:.55;cursor:not-allowed}
+.status{font-size:13px;color:var(--muted);margin-top:8px;max-width:530px}
+.status.error{color:var(--red)}.status.ok{color:var(--green)}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
 .stat,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px #1c2c4a08}
 .stat{padding:18px}.stat span{font-size:13px;color:var(--muted)}.stat strong{display:block;font-size:28px;margin-top:8px}
-.panel{padding:20px;margin-bottom:18px}.panel h2{font-size:18px;margin:0 0 16px}
+.panel{padding:20px;margin-bottom:18px}.panel h2{font-size:18px;margin:0 0 14px}
 .section{display:none}.section.active{display:block}
-.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}th{color:#6c7890;font-weight:700;background:#fafbfe}
-.pill{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#e7f7ef;color:#16865b}.pill.borrowed{background:#fff1df;color:#a7650a}.pill.overdue{background:#ffe8e8;color:#c43d3d}
-.forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-label{display:block;font-size:13px;font-weight:700;margin:13px 0 7px;color:#4b5870}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid #dce2ec;border-radius:8px;background:white;font:14px Arial;color:var(--text)}
-input:focus,select:focus{outline:2px solid #dce5ff;border-color:var(--blue)}
-form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);margin-top:8px}.empty{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.forms{grid-template-columns:1fr}header h1{font-size:21px}.panel{padding:15px}}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:#6c7890;font-weight:700;background:#fafbfe}
+.pill{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#e7f7ef;color:#16865b}
+.pill.borrowed{background:#fff1df;color:#a7650a}.pill.maintenance{background:#ffe8e8;color:#c43d3d}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:15px}
+.filters input,.filters select{border:1px solid #dce2ec;border-radius:8px;background:white;padding:10px 12px;font:14px Arial;color:var(--text);min-width:170px}
+.filters input{flex:1;min-width:210px}
+.hint{font-size:13px;line-height:1.7;color:var(--muted)}
+.notice{padding:14px 16px;background:#f6f8ff;border:1px solid #dfe6fb;border-radius:10px;line-height:1.65;margin-bottom:14px;font-size:14px}
+.footer-note{margin:10px 0 26px;color:var(--muted);font-size:12px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}header h1{font-size:21px}.panel{padding:15px}.filters input,.filters select{width:100%}}
 </style>
 </head>
 <body>
 <header>
   <h1>University Equipment Management</h1>
-  <p>Equipment inventory · Borrowing · Returns</p>
+  <p>Live Oracle inventory · Dashboard · Equipment availability</p>
 </header>
 <main>
   <div class="toolbar">
-    <div class="tabs">
-      <button class="tab active" data-tab="dashboard">Dashboard</button>
-      <button class="tab" data-tab="equipment">Equipment</button>
-      <button class="tab" data-tab="borrow">Borrow equipment</button>
-      <button class="tab" data-tab="return">Return equipment</button>
-      <button class="tab" data-tab="borrowers">Borrowers</button>
-      <button class="tab" data-tab="records">Borrowing records</button>
+    <div class="tabs" role="tablist" aria-label="Equipment management sections">
+      <button class="tab active" data-tab="dashboard" role="tab" aria-selected="true">Dashboard</button>
+      <button class="tab" data-tab="equipment" role="tab" aria-selected="false">Equipment inventory</button>
+      <button class="tab" data-tab="manage" role="tab" aria-selected="false">Borrow &amp; return</button>
     </div>
     <div>
-      <button class="secondary" id="refreshBtn">↻ Refresh data</button>
-      <div id="message" class="status" style="margin-top:7px">Connecting to database…</div>
+      <button class="secondary" id="refreshBtn" type="button">↻ Refresh Oracle data</button>
+      <div class="status" role="status" aria-live="polite" id="message">Connecting to Oracle…</div>
     </div>
   </div>
 
@@ -55,248 +64,170 @@ form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);m
     <div class="stats">
       <div class="stat"><span>Total equipment</span><strong id="totalCount">—</strong></div>
       <div class="stat"><span>Available</span><strong id="availableCount">—</strong></div>
-      <div class="stat"><span>Currently borrowed</span><strong id="borrowedCount">—</strong></div>
-      <div class="stat"><span>Overdue</span><strong id="overdueCount">—</strong></div>
+      <div class="stat"><span>Borrowed</span><strong id="borrowedCount">—</strong></div>
+      <div class="stat"><span>Maintenance</span><strong id="maintenanceCount">—</strong></div>
     </div>
-    <div class="panel"><h2>Recently added equipment</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Condition</th><th>Status</th></tr></thead><tbody id="recentEquipment"></tbody></table></div></div>
+    <div class="panel">
+      <h2>Recently registered equipment</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Condition</th><th>Status</th></tr></thead>
+        <tbody id="recentEquipment"><tr><td colspan="5" class="empty">Loading Oracle equipment…</td></tr></tbody></table>
+      </div>
+    </div>
   </section>
 
   <section id="equipment" class="section">
-    <div class="panel"><h2>Equipment inventory</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Serial number</th><th>Condition</th><th>Status</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div>
-  </section>
-
-  <section id="borrow" class="section">
-    <div class="panel" style="max-width:650px"><h2>Borrow equipment</h2>
-      <form id="borrowForm">
-        <label for="borrowEquipment">Select equipment</label>
-        <select id="borrowEquipment" required><option value="">Loading equipment…</option></select>
-        <label for="borrowerName">Borrower's full name</label>
-        <input id="borrowerName" type="text" maxlength="100" required placeholder="e.g. Ahmed Khan">
-        <div class="hint">No borrower ID is needed. The system creates a unique ID automatically.</div>
-        <label for="dueDate">Due date</label>
-        <input id="dueDate" type="date" required>
-        <button class="primary" type="submit">Confirm borrowing</button>
-        <div class="hint">Equipment and borrower IDs are generated/selected behind the scenes.</div>
-      </form>
+    <div class="panel">
+      <h2>Equipment inventory</h2>
+      <div class="filters">
+        <input id="searchEquipment" type="search" placeholder="Search equipment, model or serial number" aria-label="Search equipment">
+        <select id="statusFilter" aria-label="Filter equipment by status">
+          <option value="">All statuses</option>
+          <option value="available">Available</option>
+          <option value="borrowed">Borrowed</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
+        <select id="categoryFilter" aria-label="Filter by category"><option value="">All categories</option></select>
+      </div>
+      <p class="hint" id="resultCount">Loading inventory…</p>
+      <div class="table-wrap">
+        <table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Serial number</th><th>Condition</th><th>Status</th></tr></thead>
+        <tbody id="equipmentRows"><tr><td colspan="6" class="empty">Loading Oracle equipment…</td></tr></tbody></table>
+      </div>
     </div>
   </section>
 
-  <section id="return" class="section">
-    <div class="panel" style="max-width:650px"><h2>Return equipment</h2>
-      <form id="returnForm">
-        <label for="returnEquipment">Select borrowed equipment</label>
-        <select id="returnEquipment" required><option value="">Loading borrowed equipment…</option></select>
-        <label for="returnCondition">Condition on return</label>
-        <select id="returnCondition" required><option value="Good">Good</option><option value="Damaged">Damaged</option><option value="Needs Repair">Needs Repair</option></select>
-        <label for="returnRemarks">Remarks (optional)</label>
-        <input id="returnRemarks" type="text" placeholder="Add a note if needed">
-        <button class="primary" type="submit">Confirm return</button>
-        <div class="hint">The dropdown shows equipment names instead of borrowing or equipment IDs.</div>
-      </form>
+  <section id="manage" class="section">
+    <div class="panel">
+      <h2>Borrowing &amp; returns</h2>
+      <div class="notice"><strong>Use the existing Oracle APEX application to issue and return equipment.</strong> These actions must run behind an authenticated application, where database triggers and constraints protect records.</div>
+      <p class="hint">This GitHub Pages website shows live inventory, but it cannot safely store database passwords or secret write tokens. Your Oracle APEX application already provides the protected Borrow and Return workflows. Sign in to your Oracle APEX workspace and open your existing equipment-management application.</p>
+      <p class="hint">The public inventory refreshes from Oracle; after an issue or return in APEX, click <strong>Refresh Oracle data</strong> above to view the updated equipment status.</p>
     </div>
   </section>
-
-  <section id="borrowers" class="section">
-    <div class="panel"><h2>Registered borrowers</h2><div class="table-wrap"><table><thead><tr><th>Borrower name</th><th>Email</th><th>Phone</th><th>Department</th><th>Borrower type</th></tr></thead><tbody id="borrowerRows"></tbody></table></div></div>
-  </section>
-
-  <section id="records" class="section">
-    <div class="panel"><h2>Borrowing records</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Borrower name</th><th>Issue date</th><th>Due date</th><th>Return date</th><th>Status</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>
-  </section>
+  <p class="footer-note">Read-only public inventory. No borrower names, emails, loan records, passwords or API write credentials are sent to this website.</p>
 </main>
 <script>
-const API = "https://oracleapex.com/ords/dawood/";
-let equipment = [], categories = [], loans = [], borrowers = [];
+"use strict";
+const API_BASE = "https://oracleapex.com/ords/dawood/";
+let equipment = [];
+let categories = [];
 const $ = id => document.getElementById(id);
-const val = (obj, key) => obj?.[key] ?? obj?.[key.toLowerCase()] ?? "";
-const rows = data => Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+const field = (obj, name) => obj?.[name] ?? obj?.[name.toLowerCase()] ?? obj?.[name.toUpperCase()] ?? "";
 const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function message(text, type="") { $("message").textContent=text; $("message").className="status "+type; }
-async function api(path, method="GET", body=null) {
-  const options={method,headers:{"Accept":"application/json"}};
-  if(body){options.headers["Content-Type"]="application/json";options.body=JSON.stringify(body);}
-  const response=await fetch(API+path,options);
-  const text=await response.text();
-  let data={}; try{data=text?JSON.parse(text):{};}catch{data={message:text};}
-  if(!response.ok) throw new Error(data.message || data.error || `Request failed (${response.status})`);
-  return data;
+const label = v => String(v || "—");
+function setMessage(value, type) {
+  $("message").textContent = value;
+  $("message").className = "status " + (type || "");
 }
-function categoryName(id){
-  const found=categories.find(c=>String(val(c,"CATEGORYID"))===String(id));
-  return found ? val(found,"CATEGORYNAME") : "—";
+function statusBadge(status) {
+  const value = label(status);
+  const key = value.toLowerCase();
+  const klass = key === "borrowed" ? "borrowed" : key === "maintenance" ? "maintenance" : "";
+  return '<span class="pill ' + klass + '">' + esc(value) + "</span>";
 }
-function borrowerName(id){
-  const found=borrowers.find(b=>String(val(b,"BORROWERID"))===String(id));
-  return found ? val(found,"NAME") : "Unknown borrower";
+function categoryName(id) {
+  const row = categories.find(x => String(field(x,"CATEGORYID")) === String(id));
+  return row ? label(field(row,"CATEGORYNAME")) : (id ? "Category " + id : "—");
 }
-function equipmentName(id){
-  const found=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(id));
-  return found ? val(found,"EQUIPMENTNAME") : "Unknown equipment";
-}
-function statusPill(status){
-  const s=String(status||"").toLowerCase();
-  const cls=s.includes("overdue")?"overdue":s.includes("borrow")?"borrowed":"";
-  return `<span class="pill ${cls}">${esc(status||"—")}</span>`;
-}
-function dateOnly(v){return v?String(v).slice(0,10):"—";}
-function localDate(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
-function isOverdue(loan){
-  const due=val(loan,"DUEDATE"), returned=val(loan,"RETURNDATE");
-  return !returned && due && String(due).slice(0,10)<localDate();
-}
-function fillSelects(){
-  const activeEquipmentIds=new Set(loans
-    .filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"))
-    .map(l=>String(val(l,"EQUIPMENTID"))));
-  const available=equipment.filter(e=>
-    String(val(e,"STATUS")).toUpperCase()==="AVAILABLE" &&
-    !activeEquipmentIds.has(String(val(e,"EQUIPMENTID")))
-  );
-  $("borrowEquipment").innerHTML='<option value="">Choose equipment</option>'+available.map(e=>`<option value="${esc(val(e,"EQUIPMENTID"))}">${esc(val(e,"EQUIPMENTNAME"))}</option>`).join("");
-  const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
-  $("returnEquipment").innerHTML='<option value="">Choose borrowed equipment</option>'+active.map(l=>{
-    const id=val(l,"EQUIPMENTID");
-    return `<option value="${esc(val(l,"BORROWID"))}">${esc(equipmentName(id))} — ${esc(borrowerName(val(l,"BORROWERID")))}</option>`;
-  }).join("");
-  if(!available.length) $("borrowEquipment").innerHTML='<option value="">No available equipment</option>';
-  if(!active.length) $("returnEquipment").innerHTML='<option value="">No borrowed equipment</option>';
-}
-function render(){
-  const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
-  $("totalCount").textContent=equipment.length;
-  const activeEquipmentIds=new Set(active.map(l=>String(val(l,"EQUIPMENTID"))));
-  $("availableCount").textContent=equipment.filter(e=>
-    String(val(e,"STATUS")).toUpperCase()==="AVAILABLE" &&
-    !activeEquipmentIds.has(String(val(e,"EQUIPMENTID")))
-  ).length;
-  $("borrowedCount").textContent=active.length;
-  $("overdueCount").textContent=active.filter(isOverdue).length;
-  const equipmentHtml=equipment.map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"SERIALNUMBER")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("");
-  $("equipmentRows").innerHTML=equipmentHtml||'<tr><td colspan="6" class="empty">No equipment found. Add equipment records in Oracle first.</td></tr>';
-  $("recentEquipment").innerHTML=equipment.slice(0,6).map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No equipment records found.</td></tr>';
-  $("borrowerRows").innerHTML=borrowers.map(b=>`<tr><td><b>${esc(val(b,"NAME"))}</b></td><td>${esc(val(b,"EMAIL")||"—")}</td><td>${esc(val(b,"PHONE")||"—")}</td><td>${esc(val(b,"DEPARTMENT")||"—")}</td><td>${esc(val(b,"BORROWERTYPE")||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No borrowers found.</td></tr>';
-  $("recordRows").innerHTML=loans.map(l=>`<tr><td><b>${esc(equipmentName(val(l,"EQUIPMENTID")))}</b></td><td>${esc(borrowerName(val(l,"BORROWERID")))}</td><td>${esc(dateOnly(val(l,"ISSUEDATE")))}</td><td>${esc(dateOnly(val(l,"DUEDATE")))}</td><td>${esc(dateOnly(val(l,"RETURNDATE")))}</td><td>${statusPill(isOverdue(l)?"Overdue":val(l,"LOANSTATUS"))}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No borrowing records found.</td></tr>';
-  fillSelects();
-}
-async function loadData(){
-  message("Loading data from Oracle…");
-  try{
-    const [e,c,l,b]=await Promise.all([api("equipment/"),api("categories/"),api("borrowing-records/"),api("borrowers/")]);
-    equipment=rows(e);categories=rows(c);loans=rows(l);borrowers=rows(b);
-    render();message(`Connected · ${equipment.length} equipment records loaded`,"ok");
-  }catch(err){
-    message("Database connection failed: "+err.message,"error");
-    console.error(err);
-  }
-}
-document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
-  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b===btn));
-  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===btn.dataset.tab));
-}));
-$("refreshBtn").addEventListener("click",loadData);
-$("borrowForm").addEventListener("submit",async ev=>{
-  ev.preventDefault();
-  const form=ev.currentTarget;
-  const submit=form.querySelector('button[type="submit"]');
-  const equipmentId=$("borrowEquipment").value;
-  const borrowerName=$("borrowerName").value.trim();
-  const dueDate=$("dueDate").value;
-  if(!equipmentId || !borrowerName || !dueDate){
-    message("Please choose equipment, enter the borrower's name and select a due date.","error");
-    return;
-  }
-  if(dueDate < localDate()){
-    message("Due date cannot be earlier than today.","error");
-    return;
-  }
-  const item=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(equipmentId));
-  if(!item){message("Selected equipment was not found. Refresh and try again.","error");return;}
-  if(String(val(item,"STATUS")).toUpperCase()!=="AVAILABLE"){
-    message("This equipment is no longer available. Refresh the page.","error");return;
-  }
-
-  submit.disabled=true;
-  try{
-    message("Creating borrower and saving borrowing record…");
-
-    // Generate a random ID that does not already exist in the borrower table.
-    const usedIds=new Set(borrowers.map(b=>String(val(b,"BORROWERID"))));
-    let borrowerId;
-    do { borrowerId= Math.floor(100000 + Math.random()*900000); }
-    while(usedIds.has(String(borrowerId)));
-
-    // Create a borrower row first so the Borrowing Records foreign key is valid.
-    const safeName=borrowerName.replace(/[^a-zA-Z0-9]+/g,".").replace(/^\.+|\.+$/g,"").toLowerCase() || "borrower";
-    const borrowerPayload={
-      BORROWERID:borrowerId,
-      NAME:borrowerName,
-      EMAIL:`${safeName}.${borrowerId}@demo.university.edu`,
-      PHONE:"0000000000",
-      BORROWERTYPE:"Student",
-      DEPARTMENT:"General",
-      ROLE:"Borrower"
-    };
-    await api("borrowers/","POST",borrowerPayload);
-
-    // Create the borrowing row using the newly-created borrower ID.
-    const today=localDate();
-    await api("borrowing-records/","POST",{
-      EQUIPMENTID:Number(equipmentId),
-      BORROWERID:Number(borrowerId),
-      ISSUEDATE:today,
-      DUEDATE:dueDate,
-      LOANSTATUS:"Borrowed"
-    });
-
-    // Mark the equipment unavailable after the loan has been recorded.
-    try{
-      await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"});
-    }catch(statusError){
-      // Keep the saved loan visible and explain that inventory status needs attention.
-      await loadData();
-      message("Borrowing record saved, but equipment status could not be updated: "+statusError.message,"error");
-      return;
+async function readAllPages(resource) {
+  let url = new URL(resource, API_BASE).href;
+  const all = [];
+  const visited = new Set();
+  for (let page = 0; page < 200 && url; page++) {
+    const target = new URL(url);
+    if (target.origin !== new URL(API_BASE).origin || !target.pathname.startsWith(new URL(API_BASE).pathname)) {
+      throw new Error("Unexpected Oracle pagination URL");
     }
-
-    form.reset();
-    await loadData();
-    message(`${borrowerName} successfully borrowed ${val(item,"EQUIPMENTNAME")}.`,"ok");
-  }catch(err){
-    message("Borrow failed: "+err.message+" — check that ORDS allows POST on borrowers and borrowing-records.","error");
-    console.error("Borrow error:",err);
-  }finally{
-    submit.disabled=false;
-  }
-});
-$("returnForm").addEventListener("submit",async ev=>{
-  ev.preventDefault();
-  const borrowId=$("returnEquipment").value;
-  const loan=loans.find(l=>String(val(l,"BORROWID"))===String(borrowId));
-  if(!loan){message("Select a borrowing record first.","error");return;}
-  try{
-    message("Saving return…");
-    const today=localDate();
-    const equipmentId=val(loan,"EQUIPMENTID");
-    await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{
-      STATUS:"Available",CONDITION:$("returnCondition").value
-    });
+    if (visited.has(url)) throw new Error("Oracle pagination repeated the same page");
+    visited.add(url);
+    let response;
     try {
-      await api("borrowing-records/"+encodeURIComponent(borrowId),"PATCH",{
-        RETURNDATE:today,RETURNCONDITION:$("returnCondition").value,
-        LOANSTATUS:"Returned",REMARKS:$("returnRemarks").value
-      });
-    } catch(updateError) {
-      try { await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"}); } catch(rollbackError) {}
-      throw updateError;
+      response = await fetch(url, { method:"GET", headers:{"Accept":"application/json"}, cache:"no-store" });
+    } catch (_) {
+      throw new Error("Cannot access Oracle from this browser. Check Internet and ORDS CORS permission for this GitHub Pages domain.");
     }
-    $("returnForm").reset();await loadData();message("Equipment returned successfully.","ok");
-  }catch(err){message("Return failed: "+err.message,"error");}
-});
-// Set a convenient default due date one week from today.
-const defaultDue=new Date();
-defaultDue.setDate(defaultDue.getDate()+7);
-$("dueDate").min=localDate();
-$("dueDate").value=`${defaultDue.getFullYear()}-${String(defaultDue.getMonth()+1).padStart(2,"0")}-${String(defaultDue.getDate()).padStart(2,"0")}`;
+    if (!response.ok) throw new Error(resource + " returned HTTP " + response.status);
+    let data;
+    try { data = await response.json(); }
+    catch (_) { throw new Error("Oracle did not return valid JSON for " + resource); }
+    const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : null);
+    if (!items) throw new Error("Unexpected Oracle JSON format for " + resource);
+    all.push(...items);
+    if (Array.isArray(data)) break;
+    const next = (data.links || []).find(x => String(x.rel).toLowerCase() === "next")?.href;
+    if (next) { url = new URL(next,url).href; continue; }
+    if (data.hasMore && items.length) {
+      const current = new URL(url);
+      const offset = Number(data.offset ?? current.searchParams.get("offset") ?? 0);
+      current.searchParams.set("offset", String(offset + items.length));
+      url = current.href;
+      continue;
+    }
+    url = null;
+  }
+  if (url) throw new Error("Oracle returned too many pages; narrow the API response");
+  return all;
+}
+function renderDashboard() {
+  $("totalCount").textContent = equipment.length;
+  $("availableCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="available").length;
+  $("borrowedCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="borrowed").length;
+  $("maintenanceCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="maintenance").length;
+  const recent = [...equipment].sort((a,b)=>Number(field(b,"EQUIPMENTID"))-Number(field(a,"EQUIPMENTID"))).slice(0,6);
+  $("recentEquipment").innerHTML = recent.map(x => '<tr><td><strong>'+esc(label(field(x,"EQUIPMENTNAME")))+'</strong></td><td>'+esc(categoryName(field(x,"CATEGORYID")))+'</td><td>'+esc(label(field(x,"MODEL")))+'</td><td>'+esc(label(field(x,"CONDITION")))+'</td><td>'+statusBadge(field(x,"STATUS"))+'</td></tr>').join("") || '<tr><td colspan="5" class="empty">No Oracle equipment records found.</td></tr>';
+}
+function populateCategories() {
+  const ids = [...new Set(equipment.map(x => String(field(x,"CATEGORYID"))).filter(Boolean))];
+  const filter = $("categoryFilter");
+  const selected = filter.value;
+  filter.innerHTML = '<option value="">All categories</option>' + ids.map(id => '<option value="'+esc(id)+'">'+esc(categoryName(id))+'</option>').join("");
+  filter.value = ids.includes(selected) ? selected : "";
+}
+function renderInventory() {
+  const query = $("searchEquipment").value.trim().toLowerCase();
+  const status = $("statusFilter").value;
+  const category = $("categoryFilter").value;
+  const matches = equipment.filter(item => {
+    const searchable = [field(item,"EQUIPMENTNAME"),field(item,"MODEL"),field(item,"SERIALNUMBER")].join(" ").toLowerCase();
+    return (!query || searchable.includes(query))
+      && (!status || String(field(item,"STATUS")).toLowerCase() === status)
+      && (!category || String(field(item,"CATEGORYID")) === category);
+  });
+  $("resultCount").textContent = "Showing " + matches.length + " of " + equipment.length + " Oracle equipment records.";
+  $("equipmentRows").innerHTML = matches.map(x => '<tr><td><strong>'+esc(label(field(x,"EQUIPMENTNAME")))+'</strong></td><td>'+esc(categoryName(field(x,"CATEGORYID")))+'</td><td>'+esc(label(field(x,"MODEL")))+'</td><td>'+esc(label(field(x,"SERIALNUMBER")))+'</td><td>'+esc(label(field(x,"CONDITION")))+'</td><td>'+statusBadge(field(x,"STATUS"))+'</td></tr>').join("") || '<tr><td colspan="6" class="empty">No matching equipment found.</td></tr>';
+}
+async function loadData() {
+  const button = $("refreshBtn");
+  button.disabled = true;
+  setMessage("Reading equipment from Oracle…");
+  try {
+    // Equipment is essential; categories are optional so a category API error
+    // never prevents the live equipment dashboard from loading.
+    equipment = await readAllPages("equipment/");
+    const optional = await Promise.allSettled([readAllPages("categories/")]);
+    categories = optional[0].status === "fulfilled" ? optional[0].value : [];
+    renderDashboard();
+    populateCategories();
+    renderInventory();
+    setMessage("Oracle inventory connected · " + equipment.length + " equipment records" + (optional[0].status==="rejected" ? " · category labels unavailable" : ""), "ok");
+  } catch (error) {
+    console.error("Oracle inventory error:",error);
+    setMessage("Oracle connection not confirmed: " + error.message, "error");
+    $("recentEquipment").innerHTML = '<tr><td colspan="5" class="empty">Equipment could not be loaded from Oracle.</td></tr>';
+    $("equipmentRows").innerHTML = '<tr><td colspan="6" class="empty">Refresh when the Oracle API is available.</td></tr>';
+    $("resultCount").textContent = "Unable to load Oracle inventory.";
+    ["totalCount","availableCount","borrowedCount","maintenanceCount"].forEach(id => $(id).textContent = "—");
+  } finally {
+    button.disabled = false;
+  }
+}
+document.querySelectorAll(".tab").forEach(button => button.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(t => {t.classList.toggle("active",t===button);t.setAttribute("aria-selected",t===button?"true":"false");});
+  document.querySelectorAll(".section").forEach(section => section.classList.toggle("active",section.id===button.dataset.tab));
+}));
+["searchEquipment","statusFilter","categoryFilter"].forEach(id => $(id).addEventListener("input",renderInventory));
+$("refreshBtn").addEventListener("click",loadData);
 loadData();
 </script>
 </body>

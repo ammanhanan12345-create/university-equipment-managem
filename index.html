@@ -39,20 +39,33 @@ th{color:#6c7890;font-weight:700;background:#fafbfe}
 .hint{font-size:13px;line-height:1.7;color:var(--muted)}
 .notice{padding:14px 16px;background:#f6f8ff;border:1px solid #dfe6fb;border-radius:10px;line-height:1.65;margin-bottom:14px;font-size:14px}
 .footer-note{margin:10px 0 26px;color:var(--muted);font-size:12px}
+.actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px}
+.action-card{padding:18px;border:1px solid var(--line);border-radius:12px;background:#fbfcff}
+.action-card h3{font-size:16px;margin:0 0 7px}
+.action-card p{font-size:13px;line-height:1.5;color:var(--muted);margin:0 0 14px}
+.action-btn{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;border-radius:9px;padding:12px 17px;font-weight:700;font-size:14px;margin-top:10px}
+.action-btn.primary{color:#fff;background:var(--blue)}
+.action-btn.secondary{color:var(--blue);background:#eaf0ff}
+.action-btn:focus-visible,.tab:focus-visible{outline:3px solid #edb753;outline-offset:2px}
+.subhead{font-size:15px;margin:23px 0 14px}
 @media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}header h1{font-size:21px}.panel{padding:15px}.filters input,.filters select{width:100%}}
 </style>
 </head>
 <body>
 <header>
   <h1>University Equipment Management</h1>
-  <p>Live Oracle inventory · Dashboard · Equipment availability</p>
+  <p>University borrowing and return · Oracle-backed equipment inventory</p>
 </header>
 <main>
   <div class="toolbar">
     <div class="tabs" role="tablist" aria-label="Equipment management sections">
       <button class="tab active" data-tab="dashboard" role="tab" aria-selected="true">Dashboard</button>
       <button class="tab" data-tab="equipment" role="tab" aria-selected="false">Equipment inventory</button>
-      <button class="tab" data-tab="manage" role="tab" aria-selected="false">Borrow &amp; return</button>
+      <button class="tab" data-tab="borrow" role="tab" aria-selected="false">Borrow equipment</button>
+      <button class="tab" data-tab="return" role="tab" aria-selected="false">Return equipment</button>
+      <button class="tab" data-tab="records" role="tab" aria-selected="false">Borrowing records</button>
+      <button class="tab" data-tab="borrowers" role="tab" aria-selected="false">Borrowers</button>
+      <button class="tab" data-tab="manage" role="tab" aria-selected="false">Manage</button>
     </div>
     <div>
       <button class="secondary" id="refreshBtn" type="button">↻ Refresh Oracle data</button>
@@ -97,15 +110,61 @@ th{color:#6c7890;font-weight:700;background:#fafbfe}
     </div>
   </section>
 
-  <section id="manage" class="section">
+  <section id="borrow" class="section">
     <div class="panel">
-      <h2>Borrowing &amp; returns</h2>
-      <div class="notice"><strong>Use the existing Oracle APEX application to issue and return equipment.</strong> These actions must run behind an authenticated application, where database triggers and constraints protect records.</div>
-      <p class="hint">This GitHub Pages website shows live inventory, but it cannot safely store database passwords or secret write tokens. Your Oracle APEX application already provides the protected Borrow and Return workflows. Sign in to your Oracle APEX workspace and open your existing equipment-management application.</p>
-      <p class="hint">The public inventory refreshes from Oracle; after an issue or return in APEX, click <strong>Refresh Oracle data</strong> above to view the updated equipment status.</p>
+      <h2>Borrow equipment</h2>
+      <div class="notice"><strong>Secure Oracle borrowing form.</strong> Select a registered borrower and an available item in your existing Oracle APEX app. The borrowing record is saved to Oracle, and the database trigger updates the equipment status.</div>
+      <p class="hint" id="borrowSummary">Checking available equipment…</p>
+      <a class="action-btn primary" href="https://oracleapex.com/ords/f?p=94698:9:0" target="_blank" rel="noopener noreferrer">Open Borrow Equipment ↗</a><p class="hint">Page 9 · Sign in to your Oracle APEX app if prompted, complete the form, then return here and refresh the dashboard.</p>
+      <h3 class="subhead">Available equipment preview</h3>
+      <div class="table-wrap"><table><thead><tr><th>Equipment</th><th>Model</th><th>Serial</th><th>Condition</th></tr></thead><tbody id="borrowPreview"><tr><td colspan="4" class="empty">Loading available items…</td></tr></tbody></table></div>
     </div>
   </section>
-  <p class="footer-note">Read-only public inventory. No borrower names, emails, loan records, passwords or API write credentials are sent to this website.</p>
+
+  <section id="return" class="section">
+    <div class="panel">
+      <h2>Return equipment</h2>
+      <div class="notice"><strong>Secure Oracle return form.</strong> Choose an active borrowing record, record the return condition, and confirm. Your existing Oracle APEX page writes the return to the Oracle database.</div>
+      <a class="action-btn primary" href="https://oracleapex.com/ords/f?p=94698:10:0" target="_blank" rel="noopener noreferrer">Open Return Equipment ↗</a><p class="hint">Page 10 · Once returned, come back and click Refresh Oracle Data to see the updated inventory.</p>
+      <h3 class="subhead">Important</h3>
+      <p class="hint">Good-condition items should become Available again; damaged items should be handled according to your existing database trigger and maintenance rules.</p>
+    </div>
+  </section>
+
+  <section id="records" class="section">
+    <div class="panel">
+      <h2>Borrowing records &amp; reports</h2>
+      <p class="hint">Borrowing history contains borrower information. Open it inside the authenticated Oracle application instead of exposing private records on a public GitHub Pages website.</p>
+      <div class="actions">
+        <div class="action-card"><h3>Borrowing history</h3><p>Review loan dates, due dates, returns and statuses.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:8:0" target="_blank" rel="noopener noreferrer">Open Borrowing History ↗</a><p class="hint">Page 8 · Oracle APEX.</p></div>
+        <div class="action-card"><h3>Overdue items</h3><p>Check which equipment has passed its expected return date.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:11:0" target="_blank" rel="noopener noreferrer">Open Overdue Report ↗</a><p class="hint">Page 11 · Oracle APEX.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="borrowers" class="section">
+    <div class="panel">
+      <h2>Borrower management</h2>
+      <p class="hint">Use your existing secured Oracle forms to register university borrowers and view their details. Names, emails, and phone numbers are not loaded into this public site.</p>
+      <div class="actions">
+        <div class="action-card"><h3>Borrower list</h3><p>View registered students, teachers and staff.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:6:0" target="_blank" rel="noopener noreferrer">View Borrowers ↗</a><p class="hint">Page 6 · Oracle APEX.</p></div>
+        <div class="action-card"><h3>Register borrower</h3><p>Add a new borrower with correct university details.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:7:0" target="_blank" rel="noopener noreferrer">Add Borrower ↗</a><p class="hint">Page 7 · Oracle APEX.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="manage" class="section">
+    <div class="panel">
+      <h2>Manage university equipment</h2>
+      <div class="notice">Administrative changes are completed in Oracle APEX, with authentication and database constraints. No Render or additional Python hosting is needed for this workflow.</div>
+      <div class="actions">
+        <div class="action-card"><h3>Equipment management</h3><p>Add, edit and maintain the equipment catalog.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:4:0" target="_blank" rel="noopener noreferrer">Manage Equipment ↗</a><p class="hint">Page 4 · Oracle APEX.</p></div>
+        <div class="action-card"><h3>Categories</h3><p>Manage laptops, computers and other equipment categories.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:2:0" target="_blank" rel="noopener noreferrer">Manage Categories ↗</a><p class="hint">Page 2 · Oracle APEX.</p></div>
+        <div class="action-card"><h3>Oracle application dashboard</h3><p>Use the authenticated home page for the complete management workflow.</p><a class="action-btn secondary" href="https://oracleapex.com/ords/f?p=94698:12:0" target="_blank" rel="noopener noreferrer">Open Oracle Dashboard ↗</a><p class="hint">Page 12 · Oracle APEX.</p></div>
+      </div>
+    </div>
+  </section>
+  <p class="footer-note">Public site: read-only equipment inventory. Secure actions open authenticated Oracle APEX pages in a new tab. No Oracle passwords, borrower personal details or write tokens are embedded in GitHub Pages.</p>
 </main>
 <script>
 "use strict";
@@ -174,6 +233,9 @@ function renderDashboard() {
   $("availableCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="available").length;
   $("borrowedCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="borrowed").length;
   $("maintenanceCount").textContent = equipment.filter(x => String(field(x,"STATUS")).toLowerCase()==="maintenance").length;
+  const availableForLoan = equipment.filter(x => String(field(x,"STATUS")).toLowerCase() === "available" && String(field(x,"CONDITION")).toLowerCase() === "good");
+  $("borrowSummary").textContent = availableForLoan.length + " available, good-condition item(s) currently shown in Oracle inventory.";
+  $("borrowPreview").innerHTML = availableForLoan.slice(0,12).map(x => '<tr><td><strong>'+esc(label(field(x,"EQUIPMENTNAME")))+'</strong></td><td>'+esc(label(field(x,"MODEL")))+'</td><td>'+esc(label(field(x,"SERIALNUMBER")))+'</td><td>'+esc(label(field(x,"CONDITION")))+'</td></tr>').join("") || '<tr><td colspan="4" class="empty">No available equipment. Check the secure Oracle application.</td></tr>';
   const recent = [...equipment].sort((a,b)=>Number(field(b,"EQUIPMENTID"))-Number(field(a,"EQUIPMENTID"))).slice(0,6);
   $("recentEquipment").innerHTML = recent.map(x => '<tr><td><strong>'+esc(label(field(x,"EQUIPMENTNAME")))+'</strong></td><td>'+esc(categoryName(field(x,"CATEGORYID")))+'</td><td>'+esc(label(field(x,"MODEL")))+'</td><td>'+esc(label(field(x,"CONDITION")))+'</td><td>'+statusBadge(field(x,"STATUS"))+'</td></tr>').join("") || '<tr><td colspan="5" class="empty">No Oracle equipment records found.</td></tr>';
 }
@@ -217,6 +279,8 @@ async function loadData() {
     $("recentEquipment").innerHTML = '<tr><td colspan="5" class="empty">Equipment could not be loaded from Oracle.</td></tr>';
     $("equipmentRows").innerHTML = '<tr><td colspan="6" class="empty">Refresh when the Oracle API is available.</td></tr>';
     $("resultCount").textContent = "Unable to load Oracle inventory.";
+    $("borrowSummary").textContent = "Live availability unavailable. Use the secure Oracle borrowing form for current information.";
+    $("borrowPreview").innerHTML = '<tr><td colspan="4" class="empty">Availability cannot be shown right now.</td></tr>';
     ["totalCount","availableCount","borrowedCount","maintenanceCount"].forEach(id => $(id).textContent = "—");
   } finally {
     button.disabled = false;

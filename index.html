@@ -1,270 +1,213 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>University Equipment Management</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#f3f5f9;color:#202b3c}
-header{background:#172554;color:white;padding:22px}
-header h2{margin:0}
-header p{color:#cbd5e1}
-nav{background:white;padding:15px;display:flex;gap:18px;flex-wrap:wrap}
-nav a{color:#1e40af;text-decoration:none;font-weight:bold}
-main{padding:20px;max-width:1100px;margin:auto}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:15px}
-.card,section{background:white;padding:20px;border-radius:10px;margin-top:18px}
-.number{font-size:30px;font-weight:bold;color:#1d4ed8}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:550px}
-th,td{text-align:left;padding:12px;border-bottom:1px solid #ddd}
-th{background:#eff6ff}
-input,select,button{padding:11px;margin:5px 0;border:1px solid #cbd5e1;border-radius:6px;font-size:15px}
-input,select{width:100%;max-width:350px}
-button{background:#1d4ed8;color:white;border:0;cursor:pointer}
-button:disabled{opacity:.5}
-.status{padding:5px 9px;border-radius:12px;background:#dcfce7;color:#166534}
-.message{padding:12px;background:#e0f2fe;border-radius:7px;margin:10px 0}
-.error{background:#fee2e2;color:#991b1b}
-footer{text-align:center;padding:25px;color:#64748b}
+:root{--navy:#14213d;--blue:#315efb;--bg:#f4f6fb;--text:#202a3b;--muted:#718096;--line:#e7ebf2;--green:#16865b;--red:#d84b4b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--text)}
+header{background:linear-gradient(120deg,#14213d,#263f70);color:#fff;padding:25px max(22px,calc((100% - 1180px)/2))}
+header h1{font-size:25px;margin:0 0 6px}header p{margin:0;color:#d7e0f2;font-size:14px}
+main{max-width:1180px;margin:25px auto;padding:0 18px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab,button{border:0;border-radius:9px;padding:11px 16px;font-weight:600;cursor:pointer}
+.tab{background:#fff;color:#526078}.tab.active{background:var(--blue);color:white}
+button.primary{background:var(--blue);color:white}button.secondary{background:#edf1ff;color:#315efb}button:disabled{opacity:.55;cursor:not-allowed}
+.status{font-size:13px;color:var(--muted)}.status.error{color:var(--red)}.status.ok{color:var(--green)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px #1c2c4a08}
+.stat{padding:18px}.stat span{font-size:13px;color:var(--muted)}.stat strong{display:block;font-size:28px;margin-top:8px}
+.panel{padding:20px;margin-bottom:18px}.panel h2{font-size:18px;margin:0 0 16px}
+.section{display:none}.section.active{display:block}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:620px}th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13px}th{color:#6c7890;font-weight:700;background:#fafbfe}
+.pill{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#e7f7ef;color:#16865b}.pill.borrowed{background:#fff1df;color:#a7650a}.pill.overdue{background:#ffe8e8;color:#c43d3d}
+.forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+label{display:block;font-size:13px;font-weight:700;margin:13px 0 7px;color:#4b5870}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid #dce2ec;border-radius:8px;background:white;font:14px Arial;color:var(--text)}
+input:focus,select:focus{outline:2px solid #dce5ff;border-color:var(--blue)}
+form button{margin-top:17px;width:100%}.hint{font-size:12px;color:var(--muted);margin-top:8px}.empty{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.forms{grid-template-columns:1fr}header h1{font-size:21px}.panel{padding:15px}}
 </style>
 </head>
 <body>
-
 <header>
-<h2>University Equipment Management System</h2>
-<p>Equipment Borrowing & Return Management Portal</p>
+  <h1>University Equipment Management</h1>
+  <p>Equipment inventory · Borrowing · Returns</p>
 </header>
-
-<nav>
-<a href="#dashboard">Dashboard</a>
-<a href="#equipment">Equipment</a>
-<a href="#borrow">Borrow</a>
-<a href="#return">Return</a>
-<a href="#records">Borrowing Records</a>
-</nav>
-
 <main>
-<h1 id="dashboard">Dashboard</h1>
-<p>University Equipment Management System</p>
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab active" data-tab="dashboard">Dashboard</button>
+      <button class="tab" data-tab="equipment">Equipment</button>
+      <button class="tab" data-tab="borrow">Borrow equipment</button>
+      <button class="tab" data-tab="return">Return equipment</button>
+      <button class="tab" data-tab="records">Borrowing records</button>
+    </div>
+    <div>
+      <button class="secondary" id="refreshBtn">↻ Refresh data</button>
+      <div id="message" class="status" style="margin-top:7px">Connecting to database…</div>
+    </div>
+  </div>
 
-<div class="cards">
-<div class="card">Total Equipment<div class="number" id="total">0</div></div>
-<div class="card">Available<div class="number" id="available">0</div></div>
-<div class="card">Borrowed<div class="number" id="borrowed">0</div></div>
-<div class="card">Overdue<div class="number" id="overdue">0</div></div>
-</div>
+  <section id="dashboard" class="section active">
+    <div class="stats">
+      <div class="stat"><span>Total equipment</span><strong id="totalCount">—</strong></div>
+      <div class="stat"><span>Available</span><strong id="availableCount">—</strong></div>
+      <div class="stat"><span>Currently borrowed</span><strong id="borrowedCount">—</strong></div>
+      <div class="stat"><span>Overdue</span><strong id="overdueCount">—</strong></div>
+    </div>
+    <div class="panel"><h2>Recently added equipment</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Condition</th><th>Status</th></tr></thead><tbody id="recentEquipment"></tbody></table></div></div>
+  </section>
 
-<div id="message"></div>
+  <section id="equipment" class="section">
+    <div class="panel"><h2>Equipment inventory</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Category</th><th>Model</th><th>Serial number</th><th>Condition</th><th>Status</th></tr></thead><tbody id="equipmentRows"></tbody></table></div></div>
+  </section>
 
-<section id="equipment">
-<h2>Equipment Inventory</h2>
-<button onclick="loadData()">Refresh Equipment</button>
-<div class="table-wrap">
-<table>
-<thead>
-<tr><th>ID</th><th>Equipment</th><th>Category ID</th><th>Condition</th><th>Status</th></tr>
-</thead>
-<tbody id="equipmentRows">
-<tr><td colspan="5">Loading...</td></tr>
-</tbody>
-</table>
-</div>
-</section>
+  <section id="borrow" class="section">
+    <div class="panel" style="max-width:650px"><h2>Borrow equipment</h2>
+      <form id="borrowForm">
+        <label for="borrowEquipment">Select equipment</label>
+        <select id="borrowEquipment" required><option value="">Loading equipment…</option></select>
+        <label for="borrowerId">Borrower ID</label>
+        <input id="borrowerId" type="number" min="1" required placeholder="Enter borrower ID">
+        <label for="dueDate">Due date</label>
+        <input id="dueDate" type="date" required>
+        <button class="primary" type="submit">Confirm borrowing</button>
+        <div class="hint">Choose the equipment by name. Its database ID is handled automatically.</div>
+      </form>
+    </div>
+  </section>
 
-<section id="borrow">
-<h2>Borrow Equipment</h2>
-<p>Enter the equipment and registered borrower IDs.</p>
-<form id="borrowForm">
-<label>Equipment ID</label><br>
-<input type="number" id="equipmentId" required placeholder="Equipment ID"><br>
-<label>Borrower ID</label><br>
-<input type="number" id="borrowerId" required placeholder="Borrower ID"><br>
-<label>Due Date</label><br>
-<input type="date" id="dueDate" required><br>
-<button type="submit">Borrow Equipment</button>
-</form>
-</section>
+  <section id="return" class="section">
+    <div class="panel" style="max-width:650px"><h2>Return equipment</h2>
+      <form id="returnForm">
+        <label for="returnEquipment">Select borrowed equipment</label>
+        <select id="returnEquipment" required><option value="">Loading borrowed equipment…</option></select>
+        <label for="returnCondition">Condition on return</label>
+        <select id="returnCondition" required><option value="Good">Good</option><option value="Damaged">Damaged</option><option value="Needs Repair">Needs Repair</option></select>
+        <label for="returnRemarks">Remarks (optional)</label>
+        <input id="returnRemarks" type="text" placeholder="Add a note if needed">
+        <button class="primary" type="submit">Confirm return</button>
+        <div class="hint">The dropdown shows equipment names instead of borrowing or equipment IDs.</div>
+      </form>
+    </div>
+  </section>
 
-<section id="return">
-<h2>Return Equipment</h2>
-<form id="returnForm">
-<label>Borrowing Record ID</label><br>
-<input type="number" id="borrowId" required placeholder="Borrow ID"><br>
-<label>Return Condition</label><br>
-<select id="returnCondition">
-<option value="Good">Good</option>
-<option value="Damaged">Damaged</option>
-<option value="Fair">Fair</option>
-</select><br>
-<label>Remarks</label><br>
-<input id="remarks" placeholder="Optional remarks"><br>
-<button type="submit">Return Equipment</button>
-</form>
-</section>
-
-<section id="records">
-<h2>Borrowing History</h2>
-<div class="table-wrap">
-<table>
-<thead>
-<tr><th>Borrow ID</th><th>Equipment ID</th><th>Borrower ID</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr>
-</thead>
-<tbody id="recordRows">
-<tr><td colspan="6">Loading...</td></tr>
-</tbody>
-</table>
-</div>
-</section>
+  <section id="records" class="section">
+    <div class="panel"><h2>Borrowing records</h2><div class="table-wrap"><table><thead><tr><th>Equipment name</th><th>Borrower ID</th><th>Issue date</th><th>Due date</th><th>Return date</th><th>Status</th></tr></thead><tbody id="recordRows"></tbody></table></div></div>
+  </section>
 </main>
-
-<footer>University Equipment Management System</footer>
-
 <script>
 const API = "https://oracleapex.com/ords/dawood/";
-
-function showMessage(text,error=false){
- const box=document.getElementById("message");
- box.className="message"+(error?" error":"");
- box.textContent=text;
+let equipment = [], categories = [], loans = [];
+const $ = id => document.getElementById(id);
+const val = (obj, key) => obj?.[key] ?? obj?.[key.toLowerCase()] ?? "";
+const rows = data => Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function message(text, type="") { $("message").textContent=text; $("message").className="status "+type; }
+async function api(path, method="GET", body=null) {
+  const options={method,headers:{"Accept":"application/json"}};
+  if(body){options.headers["Content-Type"]="application/json";options.body=JSON.stringify(body);}
+  const response=await fetch(API+path,options);
+  const text=await response.text();
+  let data={}; try{data=text?JSON.parse(text):{};}catch{data={message:text};}
+  if(!response.ok) throw new Error(data.message || data.error || `Request failed (${response.status})`);
+  return data;
 }
-
-async function api(path,method="GET",body=null){
- const options={
-  method,
-  headers:{"Accept":"application/json"}
- };
- if(body){
-  options.headers["Content-Type"]="application/json";
-  options.body=JSON.stringify(body);
- }
- const response=await fetch(API+path,options);
- const text=await response.text();
- if(!response.ok) throw new Error("API error "+response.status+": "+text);
- return text?JSON.parse(text):{};
+function categoryName(id){
+  const found=categories.find(c=>String(val(c,"CATEGORYID"))===String(id));
+  return found ? val(found,"CATEGORYNAME") : "—";
 }
-
-function rows(data){
- return data.items || [];
+function equipmentName(id){
+  const found=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(id));
+  return found ? val(found,"EQUIPMENTNAME") : "Unknown equipment";
 }
-
-function value(row,key){
- const found=Object.keys(row).find(k=>k.toLowerCase()===key.toLowerCase());
- return found?row[found]:"";
+function statusPill(status){
+  const s=String(status||"").toLowerCase();
+  const cls=s.includes("overdue")?"overdue":s.includes("borrow")?"borrowed":"";
+  return `<span class="pill ${cls}">${esc(status||"—")}</span>`;
 }
-
+function dateOnly(v){return v?String(v).slice(0,10):"—";}
+function isOverdue(loan){
+  const due=val(loan,"DUEDATE"), returned=val(loan,"RETURNDATE");
+  return !returned && due && new Date(due)<new Date(new Date().toDateString());
+}
+function fillSelects(){
+  const available=equipment.filter(e=>String(val(e,"STATUS")).toUpperCase()==="AVAILABLE");
+  $("borrowEquipment").innerHTML='<option value="">Choose equipment</option>'+available.map(e=>`<option value="${esc(val(e,"EQUIPMENTID"))}">${esc(val(e,"EQUIPMENTNAME"))}</option>`).join("");
+  const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
+  $("returnEquipment").innerHTML='<option value="">Choose borrowed equipment</option>'+active.map(l=>{
+    const id=val(l,"EQUIPMENTID");
+    return `<option value="${esc(val(l,"BORROWID"))}">${esc(equipmentName(id))} — Borrower ${esc(val(l,"BORROWERID"))}</option>`;
+  }).join("");
+  if(!available.length) $("borrowEquipment").innerHTML='<option value="">No available equipment</option>';
+  if(!active.length) $("returnEquipment").innerHTML='<option value="">No borrowed equipment</option>';
+}
+function render(){
+  const active=loans.filter(l=>!val(l,"RETURNDATE") && !String(val(l,"LOANSTATUS")).toLowerCase().includes("return"));
+  $("totalCount").textContent=equipment.length;
+  $("availableCount").textContent=equipment.filter(e=>String(val(e,"STATUS")).toUpperCase()==="AVAILABLE").length;
+  $("borrowedCount").textContent=active.length;
+  $("overdueCount").textContent=active.filter(isOverdue).length;
+  const equipmentHtml=equipment.map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"SERIALNUMBER")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("");
+  $("equipmentRows").innerHTML=equipmentHtml||'<tr><td colspan="6" class="empty">No equipment found. Add equipment records in Oracle first.</td></tr>';
+  $("recentEquipment").innerHTML=equipment.slice(0,6).map(e=>`<tr><td><b>${esc(val(e,"EQUIPMENTNAME"))}</b></td><td>${esc(categoryName(val(e,"CATEGORYID")))}</td><td>${esc(val(e,"MODEL")||"—")}</td><td>${esc(val(e,"CONDITION")||"—")}</td><td>${statusPill(val(e,"STATUS"))}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No equipment records found.</td></tr>';
+  $("recordRows").innerHTML=loans.map(l=>`<tr><td><b>${esc(equipmentName(val(l,"EQUIPMENTID")))}</b></td><td>${esc(val(l,"BORROWERID"))}</td><td>${esc(dateOnly(val(l,"ISSUEDATE")))}</td><td>${esc(dateOnly(val(l,"DUEDATE")))}</td><td>${esc(dateOnly(val(l,"RETURNDATE")))}</td><td>${statusPill(isOverdue(l)?"Overdue":val(l,"LOANSTATUS"))}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No borrowing records found.</td></tr>';
+  fillSelects();
+}
 async function loadData(){
- try{
-  const [equipmentData,loanData]=await Promise.all([
-   api("equipment/"),
-   api("borrowing-records/")
-  ]);
-
-  const equipment=rows(equipmentData);
-  const loans=rows(loanData);
-  const today=new Date().toISOString().slice(0,10);
-
-  const available=equipment.filter(e=>String(value(e,"STATUS")).toUpperCase()==="AVAILABLE");
-  const borrowed=equipment.filter(e=>String(value(e,"STATUS")).toUpperCase()==="BORROWED");
-  const overdue=loans.filter(l=>
-   !value(l,"RETURNDATE") &&
-   value(l,"DUEDATE") &&
-   String(value(l,"DUEDATE")).slice(0,10)<today
-  );
-
-  document.getElementById("total").textContent=equipment.length;
-  document.getElementById("available").textContent=available.length;
-  document.getElementById("borrowed").textContent=borrowed.length;
-  document.getElementById("overdue").textContent=overdue.length;
-
-  document.getElementById("equipmentRows").innerHTML=equipment.map(e=>`
-   <tr>
-    <td>${value(e,"EQUIPMENTID")}</td>
-    <td>${value(e,"EQUIPMENTNAME")}</td>
-    <td>${value(e,"CATEGORYID")}</td>
-    <td>${value(e,"CONDITION")}</td>
-    <td>${value(e,"STATUS")}</td>
-   </tr>
-  `).join("")||'<tr><td colspan="5">No equipment found.</td></tr>';
-
-  document.getElementById("recordRows").innerHTML=loans.map(l=>`
-   <tr>
-    <td>${value(l,"BORROWID")}</td>
-    <td>${value(l,"EQUIPMENTID")}</td>
-    <td>${value(l,"BORROWERID")}</td>
-    <td>${value(l,"ISSUEDATE")}</td>
-    <td>${value(l,"DUEDATE")}</td>
-    <td>${value(l,"LOANSTATUS")}</td>
-   </tr>
-  `).join("")||'<tr><td colspan="6">No borrowing records found.</td></tr>';
-
- }catch(error){
-  showMessage("Could not load Oracle data. "+error.message,true);
- }
+  message("Loading data from Oracle…");
+  try{
+    const [e,c,l]=await Promise.all([api("equipment/"),api("categories/"),api("borrowing-records/")]);
+    equipment=rows(e);categories=rows(c);loans=rows(l);
+    render();message(`Connected · ${equipment.length} equipment records loaded`,"ok");
+  }catch(err){
+    message("Database connection failed: "+err.message,"error");
+    console.error(err);
+  }
 }
-
-document.getElementById("borrowForm").addEventListener("submit",async e=>{
- e.preventDefault();
- try{
-  const equipmentId=Number(document.getElementById("equipmentId").value);
-  const borrowerId=Number(document.getElementById("borrowerId").value);
-  const dueDate=document.getElementById("dueDate").value;
-  const issueDate=new Date().toISOString().slice(0,10);
-
-  if(dueDate<issueDate) throw new Error("Due date cannot be before today.");
-
-  const equipment=await api("equipment/"+equipmentId);
-  if(String(value(equipment,"STATUS")).toUpperCase()!=="AVAILABLE")
-   throw new Error("This equipment is not available.");
-
-  if(String(value(equipment,"CONDITION")).toUpperCase()!=="GOOD")
-   throw new Error("Only equipment in good condition can be borrowed.");
-
-  await api("borrowing-records/","POST",{
-   EQUIPMENTID:equipmentId,
-   BORROWERID:borrowerId,
-   ISSUEDATE:issueDate,
-   DUEDATE:dueDate,
-   LOANSTATUS:"Borrowed"
-  });
-
-  showMessage("Borrowing record submitted. Refreshing data...");
-  e.target.reset();
-  await loadData();
- }catch(error){
-  showMessage(error.message,true);
- }
+document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b===btn));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===btn.dataset.tab));
+}));
+$("refreshBtn").addEventListener("click",loadData);
+$("borrowForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const equipmentId=$("borrowEquipment").value, borrowerId=$("borrowerId").value, dueDate=$("dueDate").value;
+  if(!equipmentId)return;
+  const item=equipment.find(e=>String(val(e,"EQUIPMENTID"))===String(equipmentId));
+  if(!item){message("Selected equipment was not found. Refresh and try again.","error");return;}
+  if(String(val(item,"STATUS")).toUpperCase()!=="AVAILABLE"){message("This equipment is no longer available.","error");return;}
+  try{
+    message("Saving borrowing record…");
+    const today=new Date().toISOString().slice(0,10);
+    await api("borrowing-records/","POST",{
+      EQUIPMENTID:Number(equipmentId),BORROWERID:Number(borrowerId),
+      ISSUEDATE:today,DUEDATE:dueDate,LOANSTATUS:"Borrowed"
+    });
+    await api("equipment/"+encodeURIComponent(equipmentId),"PATCH",{STATUS:"Borrowed"});
+    $("borrowForm").reset();await loadData();message("Equipment borrowed successfully.","ok");
+  }catch(err){message("Borrow failed: "+err.message,"error");}
 });
-
-document.getElementById("returnForm").addEventListener("submit",async e=>{
- e.preventDefault();
- try{
-  const borrowId=Number(document.getElementById("borrowId").value);
-  const condition=document.getElementById("returnCondition").value;
-  const remarks=document.getElementById("remarks").value;
-
-  const loan=await api("borrowing-records/"+borrowId);
-
-  if(value(loan,"RETURNDATE"))
-   throw new Error("This equipment has already been returned.");
-
-  await api("borrowing-records/"+borrowId,"PATCH",{
-   RETURNDATE:new Date().toISOString().slice(0,10),
-   RETURNCONDITION:condition,
-   LOANSTATUS:"Returned",
-   REMARKS:remarks
-  });
-
-  showMessage("Return recorded. Refreshing data...");
-  e.target.reset();
-  await loadData();
- }catch(error){
-  showMessage(error.message,true);
- }
+$("returnForm").addEventListener("submit",async ev=>{
+  ev.preventDefault();
+  const borrowId=$("returnEquipment").value;
+  const loan=loans.find(l=>String(val(l,"BORROWID"))===String(borrowId));
+  if(!loan){message("Select a borrowing record first.","error");return;}
+  try{
+    message("Saving return…");
+    const today=new Date().toISOString().slice(0,10);
+    await api("borrowing-records/"+encodeURIComponent(borrowId),"PATCH",{
+      RETURNDATE:today,RETURNCONDITION:$("returnCondition").value,
+      LOANSTATUS:"Returned",REMARKS:$("returnRemarks").value
+    });
+    await api("equipment/"+encodeURIComponent(val(loan,"EQUIPMENTID")),"PATCH",{
+      STATUS:"Available",CONDITION:$("returnCondition").value
+    });
+    $("returnForm").reset();await loadData();message("Equipment returned successfully.","ok");
+  }catch(err){message("Return failed: "+err.message,"error");}
 });
-
 loadData();
 </script>
 </body>

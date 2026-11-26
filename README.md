@@ -17,14 +17,16 @@ The accepted values follow your SQL: borrower types `Student`, `Teacher`, `Staff
 
 ## 2. How the website connects
 
-The Flask app talks to Oracle through ORDS REST endpoints. It uses the actual no-underscore Oracle column names in JSON requests and normalizes ORDS response field names for the website templates. The expected AutoREST resource paths are:
+The Flask app talks to Oracle through ORDS REST endpoints. It uses the actual no-underscore Oracle column names in JSON requests and normalizes ORDS response field names for the website templates. The workspace owner provided these custom ORDS module paths (rather than default AutoREST table paths):
 
-- `<ORDS_BASE_URL>/ueb_categories/`
-- `<ORDS_BASE_URL>/ueb_equipment/`
-- `<ORDS_BASE_URL>/ueb_borrowers/`
-- `<ORDS_BASE_URL>/ueb_borrowing_records/`
+- `https://oracleapex.com/ords/dawood/categories/`
+- `https://oracleapex.com/ords/dawood/equipment/`
+- `https://oracleapex.com/ords/dawood/borrowers/`
+- `https://oracleapex.com/ords/dawood/borrowing-records/`
 
-You must enable REST access for these tables in your Oracle APEX/ORDS workspace and configure authentication that your workspace supports. The exact ORDS URL and authentication method depend on your workspace. Do not assume the endpoint is working until you test it.
+An equipment API JSON response was supplied as a screenshot; that establishes a working public read endpoint but **does not** establish permission to write, browser CORS support, or that all four endpoints are available. Test each one individually. No secrets are required for public GET requests; authenticated POST/PUT/DELETE requests require backend-only ORDS credentials.
+
+For this Oracle workspace, set `ORDS_BASE_URL=https://oracleapex.com/ords/dawood/`. Keep write credentials in server-side environment variables, never in GitHub Pages JavaScript. This Flask app must run on a Python-capable host (for example, Render); GitHub Pages alone only serves the static `index.html` and cannot run Flask.
 
 ## 3. Run locally
 
@@ -70,4 +72,8 @@ The Oracle trigger in your SQL updates equipment status when a loan is inserted 
 
 ## 6. Important limitations before real use
 
-This is a student-project starter, not a security-audited production system. It uses environment-configured website logins rather than individual hashed user accounts. Add CSRF protection, per-user authentication, audit logging, backups, and least-privilege ORDS credentials before any real institutional deployment. ORDS AutoREST endpoints and authentication have not been tested against your personal APEX workspace yet, so the deployed website is not confirmed connected until we test it with your workspace configuration.
+This is a student-project starter, not a security-audited production system. The publicly hosted `index.html` is a separate static UI and is **not** the Flask app; its direct browser writes must not be used for real transactions. Deploy the authenticated Flask app as the management portal. It uses environment-configured website logins rather than individual hashed user accounts. Add CSRF protection, per-user authentication, audit logging, backups, and least-privilege ORDS credentials before any real institutional deployment. ORDS AutoREST endpoints and authentication have not been tested against your personal APEX workspace yet, so the deployed website is not confirmed connected until we test it with your workspace configuration.
+
+## 7. Deployment status
+
+The repository contains a Flask backend, but it is not deployed by GitHub Pages. After connecting a Render service, set the environment variables privately, then verify `GET /health` and test read operations, followed by an authorized issue/return test on sample equipment. Do not run SQL table-creation scripts again on the populated workspace.

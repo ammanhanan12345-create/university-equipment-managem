@@ -1,5 +1,16 @@
 # University Equipment Borrowing & Return Management System
 
+## GitHub Pages (no Render required for live inventory)
+
+The deployed `index.html` is a **read-only Oracle inventory dashboard**. It loads equipment and, when available, category names from `https://oracleapex.com/ords/dawood/` directly in the browser. It includes equipment search and status/category filters. It does **not** load borrowers or loan records, nor does it send any POST/PUT/PATCH/DELETE requests. No API secrets belong in the HTML.
+
+**Important:** Browser access requires ORDS to send a compatible `Access-Control-Allow-Origin` header for the GitHub Pages origin. A JSON endpoint opening in a browser tab proves server-side GET works, but does not prove cross-origin `fetch` from GitHub Pages works. Configure CORS in Oracle ORDS if the website shows a CORS/network error.
+
+For secure Borrow/Return, use the existing authenticated Oracle APEX application. The repository also has an optional Flask app which can support write operations **only when hosted** and configured with server-side credentials. GitHub Pages cannot run Flask. No Render account is required for the read-only site.
+
+---
+
+
 This Flask website has been adapted to the exact Oracle table and column names in the supplied `Website.sql` file.
 
 ## 1. Database schema used

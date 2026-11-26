@@ -19,11 +19,13 @@ app.config.update(
 )
 
 # ORDS AutoREST resources for the exact table names in Website.sql.
+# These are the ORDS module paths provided by the workspace owner.
+# They are different from Oracle AutoREST's default UEB_* table paths.
 TABLES = {
-    "categories": "ueb_categories/",
-    "equipment": "ueb_equipment/",
-    "borrowers": "ueb_borrowers/",
-    "loans": "ueb_borrowing_records/",
+    "categories": "categories/",
+    "equipment": "equipment/",
+    "borrowers": "borrowers/",
+    "loans": "borrowing-records/",
 }
 
 # Website-friendly field names mapped to the actual Oracle column names.
@@ -74,10 +76,12 @@ class OrdsClient:
             raise OrdsError("ORDS_BASE_URL is not configured.")
         if not self.base.endswith("/"):
             self.base += "/"
-        if not self.token and not (self.username and self.password):
-            raise OrdsError("Configure ORDS_BEARER_TOKEN or ORDS_USERNAME and ORDS_PASSWORD.")
+        # Public GET endpoints can be read without a token; protected writes must
+        # never be sent by this backend without its own ORDS credentials.
 
     def call(self, method, resource, payload=None, params=None):
+        if method.upper() not in ("GET", "HEAD") and not (self.token or (self.username and self.password)):
+            raise OrdsError("ORDS write credentials are not configured. Configure authenticated ORDS access on the server.")
         headers = {"Accept": "application/json"}
         auth = None
         if self.token:

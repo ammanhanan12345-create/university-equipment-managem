@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block content %}<h2 class="mb-3">{{ 'Edit' if item else 'Add' }} {{ {'categories':'category','equipment':'equipment','borrowers':'borrower'}[table] }}</h2>
+<div class="card shadow-sm"><div class="card-body"><form method="post" class="row g-3">
+{% if table=='categories' %}
+<div class="col-md-6"><label class="form-label">Category name</label><input class="form-control" name="category_name" maxlength="100" value="{{ item.get('category_name','') }}" required></div>
+<div class="col-md-6"><label class="form-label">Description</label><input class="form-control" name="description" maxlength="255" value="{{ item.get('description','') }}"></div>
+{% elif table=='equipment' %}
+<div class="col-md-6"><label class="form-label">Category ID</label><input class="form-control" type="number" min="1" name="category_id" value="{{ item.get('category_id','') }}" required></div>
+<div class="col-md-6"><label class="form-label">Equipment name</label><input class="form-control" name="equipment_name" maxlength="100" value="{{ item.get('equipment_name','') }}" required></div>
+<div class="col-md-6"><label class="form-label">Model</label><input class="form-control" name="model" maxlength="100" value="{{ item.get('model','') }}"></div>
+<div class="col-md-6"><label class="form-label">Serial number</label><input class="form-control" name="serial_number" maxlength="100" value="{{ item.get('serial_number','') }}"></div>
+<div class="col-md-6"><label class="form-label">Purchase date</label><input class="form-control" type="date" name="purchase_date" value="{{ item.get('purchase_date','')[:10] if item.get('purchase_date') else '' }}"></div>
+<div class="col-md-6"><label class="form-label">Condition</label><select class="form-select" name="condition"><option value="Good" {% if item.get('condition','Good')|lower=='good' %}selected{% endif %}>Good</option><option value="Damaged" {% if item.get('condition','')|lower=='damaged' %}selected{% endif %}>Damaged</option><option value="Missing" {% if item.get('condition','')|lower=='missing' %}selected{% endif %}>Missing</option></select></div>
+<div class="col-md-6"><label class="form-label">Status</label><select class="form-select" name="status"><option value="Available" {% if item.get('status','Available')|lower=='available' %}selected{% endif %}>Available</option><option value="Borrowed" {% if item.get('status','')|lower=='borrowed' %}selected{% endif %}>Borrowed</option><option value="Maintenance" {% if item.get('status','')|lower=='maintenance' %}selected{% endif %}>Maintenance</option></select><div class="form-text">Normally this is updated automatically by the borrowing trigger.</div></div>
+{% else %}
+<div class="col-md-6"><label class="form-label">Full name</label><input class="form-control" name="name" maxlength="100" value="{{ item.get('name','') }}" required></div>
+<div class="col-md-6"><label class="form-label">Email</label><input class="form-control" type="email" name="email" maxlength="150" value="{{ item.get('email','') }}"></div>
+<div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" maxlength="20" value="{{ item.get('phone','') }}"></div>
+<div class="col-md-6"><label class="form-label">Borrower type</label><select class="form-select" name="borrower_type" required>{% for v in ['Student','Teacher','Staff'] %}<option value="{{ v }}" {% if item.get('borrower_type','Student')|lower==v|lower %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Department</label><input class="form-control" name="department" maxlength="100" value="{{ item.get('department','') }}"></div>
+<div class="col-md-6"><label class="form-label">Database role</label><select class="form-select" name="role">{% for v in ['Borrower','LabStaff','Admin'] %}<option value="{{ v }}" {% if item.get('role','Borrower')|lower==v|lower %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+{% endif %}
+<div class="col-12"><button class="btn btn-primary">Save</button> <a class="btn btn-light" href="{{ url_for('list_page',table=table) }}">Cancel</a></div></form></div></div>{% endblock %}

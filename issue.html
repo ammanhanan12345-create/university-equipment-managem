@@ -1,0 +1,6 @@
+{% extends "base.html" %}{% block content %}<h2>Issue equipment</h2><div class="card shadow-sm"><div class="card-body"><form method="post" class="row g-3">
+<div class="col-md-6"><label class="form-label">Equipment</label><select class="form-select" name="equipment_id" required>{% for e in equipment if e.status|lower=='available' and e.condition|lower=='good' %}<option value="{{ e.equipment_id }}">{{ e.equipment_name }} · {{ e.serial_number }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Borrower</label><select class="form-select" name="borrower_id" required>{% for b in borrowers %}<option value="{{ b.borrower_id }}">{{ b.name }} · {{ b.department or b.borrower_type }}</option>{% endfor %}</select></div>
+<div class="col-md-6"><label class="form-label">Issue date</label><input class="form-control" type="date" name="issue_date" value="{{ today }}" required></div>
+<div class="col-md-6"><label class="form-label">Due date</label><input class="form-control" type="date" name="due_date" min="{{ today }}" required></div>
+<div class="col-12"><button class="btn btn-primary">Confirm issue</button></div></form></div></div>{% endblock %}

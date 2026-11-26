@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Dashboard · UEBMS{% endblock %}{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="mb-1">Dashboard</h2><p class="text-secondary mb-0">Equipment borrowing overview</p></div><a class="btn btn-primary" href="{{ url_for('issue') }}">+ Issue equipment</a></div>
+<div class="row g-3 mb-4">
+{% for label,value,colour in [('Total equipment',total,'primary'),('Available',available,'success'),('Borrowed',borrowed,'warning'),('Overdue',overdue,'danger')] %}
+<div class="col-6 col-lg-3"><div class="card metric border-0 shadow-sm"><div class="card-body"><div class="text-secondary">{{ label }}</div><div class="display-6 fw-semibold text-{{ colour }}">{{ value }}</div></div></div></div>{% endfor %}
+</div>
+<div class="card shadow-sm"><div class="card-body"><h5>Recent borrowing records</h5><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Borrow ID</th><th>Equipment ID</th><th>Borrower ID</th><th>Issue date</th><th>Due date</th><th>Status</th></tr></thead><tbody>
+{% for l in recent %}<tr><td>{{ l.borrow_id }}</td><td>{{ l.equipment_id }}</td><td>{{ l.borrower_id }}</td><td>{{ l.issue_date }}</td><td>{{ l.due_date }}</td><td>{{ l.loan_status }}</td></tr>{% else %}<tr><td colspan="6" class="text-secondary">No records yet.</td></tr>{% endfor %}
+</tbody></table></div></div></div>{% endblock %}
